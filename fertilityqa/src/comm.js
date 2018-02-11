@@ -1,3 +1,4 @@
+import * as config from './hichart'
 const debug = require('debug')('COMM')
 
 export function trim(str) {
@@ -73,7 +74,8 @@ export function renderChart (ele, targKey) {
     case '816112':
     case '16251':
     case '816251':
-          configKey = 'M15'
+    case 'm15':
+      configKey = 'M15'
       break
     case '131':
     case '8131':
@@ -86,10 +88,69 @@ export function renderChart (ele, targKey) {
     case '16123':
     case '816123':
       configKey = 'M20'
-      break        
+      break
+    case 'm08':
+      configKey = 'M08'
+      break
+    case 'm13':
+      configKey = 'M13'
+      break
+    case 'm14':
+      configKey = 'M14_REAL'
+      break
+    case 't12':
+      configKey = 'T12'
+      break
+    case 't13':
+      configKey = 'T13'
+      break
+    case 'm22':
+      configKey = 'M22'
+      break
+    case 'm25':
+      configKey = 'M25'
+      break
+    case 'm28':
+      configKey = 'M28'
+      break
+    case 'm26':
+      configKey = 'M26'
+      break
+    case 'm27':
+      configKey = 'M27'
+      break
+    case 't15':
+      configKey = 'T15'
+      break
+    case 't18':
+      configKey = 'T18'
+      break
+    case 't20':
+      configKey = 'T20'
+      break
+    case 'm18':
+      configKey = 'M18_REAL'
+      break
   }
   debug('targKey', targKey, typeof(targKey), ele)
   debug('configKey', configKey)
   if (!configKey) { return }
   Highcharts.chart(ele, config[ configKey ])
+}
+
+export function elmYPosition({ ele, eID, errHandler }) {
+  let elm = ele ? ele : document.querySelector(eID);
+  if (!elm) { 
+    errHandler && errHandler({
+      message: 'cannot find element' + eID
+    })
+    return
+  }
+  let y = elm.offsetTop;
+  let node = elm;
+  while (node.offsetParent && node.offsetParent != document.body) {
+      node = node.offsetParent;
+      y += node.offsetTop;
+  }
+  return y;
 }

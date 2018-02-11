@@ -1,9 +1,12 @@
 import './index.styl'
-import { addClass, getClientOS, renderChart } from './comm'
-import { smoothScrollTo, elmYPosition } from 'kc-scroll'
-import * as config from './hichart'
+import { addClass, elmYPosition, getClientOS, renderChart, removeClass, hasClass } from './comm'
+import { currentYPosition, smoothScrollTo } from 'kc-scroll'
+import { find } from 'lodash'
+import HashTable from 'jshashtable'
+import verge from 'verge'
 
-const debug = require('debug')('FERTILITY')
+const debug = require('debug')('FERTILITY:DEFAULT')
+const debugScroll = require('debug')('FERTILITY:SCROLL')
 class Fertility {
   init () {
     this.blocks = {}
@@ -134,13 +137,152 @@ class Fertility {
   }
 }
 class Article {
+  constructor () {
+    // this.hashArticles = new HashTable()
+    this.hashSects = new HashTable()
+    this.init = this.init.bind(this)
+    this.preCalc = this.preCalc.bind(this)
+    this.scrollHandler = this.scrollHandler.bind(this)
+    this.setScrollManager = this.setScrollManager.bind(this)
+    this.resetScrollManager = this.resetScrollManager.bind(this)
+  }
   init () {
     debug('INIT ARTICLE')
-    renderChart(document.querySelector(`article[data-key="1"] .hichart`), '1')
+    renderChart(document.querySelector(`.chart-container.a1m01 .hichart`), '1')
+    // renderChart(document.querySelector(`.a1m18 .hichart`), '11')
+    renderChart(document.querySelector(`.chart-container.a1m18 .hichart`), 'm18')
+    renderChart(document.querySelector(`.chart-container.a2m18 .hichart`), '11')
+    // renderChart(document.querySelector(`.chart-container.a2m13 .hichart`), '11')
+    renderChart(document.querySelector(`.chart-container.a2m14 .hichart`), 'm14')
+    renderChart(document.querySelector(`.chart-container.a3m15 .hichart`), 'm15')
+    renderChart(document.querySelector(`.chart-container.a3t12 .hichart`), 't12')
+    renderChart(document.querySelector(`.chart-container.a3m18 .hichart`), 'm18')
+    renderChart(document.querySelector(`.chart-container.a4m22 .hichart`), 'm22')
+    renderChart(document.querySelector(`.chart-container.a4m25 .hichart`), 'm25')
+    renderChart(document.querySelector(`.chart-container.a4m28 .hichart`), 'm28')
+    // renderChart(document.querySelector(`.chart-container.a4m26 .hichart`), 'm26')
+    // renderChart(document.querySelector(`.chart-container.a4m27 .hichart`), 'm27')
+    renderChart(document.querySelector(`.chart-container.a4t15 .hichart`), 't15')
+    renderChart(document.querySelector(`.chart-container.a4t18 .hichart`), 't18')
+    renderChart(document.querySelector(`.chart-container.a4t20 .hichart`), 't20')
+    document.querySelector('.exception').setAttribute('style', 'opacity: 1;')
+    Promise.all([
+      this.preCalc(),
+      this.setScrollManager()
+    ]).then(() => {
+      debug('INIT FUNISHED')
+    })
+  }
+  preCalc () {
+    return new Promise((resolve) => {
+      const domSects = [...document.querySelectorAll('section')]
+      const articles = [...document.querySelectorAll('.articlewpr')]
+
+      articles.map((article, index) => {
+        const sects = [...article.querySelectorAll('section')]
+        sects.map((sect, ind) => {
+          addClass(sect, `article${index}-section${ind}`)
+        })
+      })
+
+      debug('Abt to write all section basic info to hash.')
+      domSects.map((sect, index) => {
+        const className = sect.getAttribute('class')
+        if (!className) { return }
+        const height = sect.clientHeight
+        const top = elmYPosition({ ele: sect })
+        const chart = sect.querySelector('.chart-container')
+        // chart && chart.setAttribute('style', `width: ${chart.clientWidth}px;`)
+        chart && this.setChartFixed(chart)
+
+        this.hashSects.put(`s${index}`, { 
+          ele: sect, height,
+          top, bottom: height + top,
+          selector: `.${className.split(' ').join('.')}`,
+          chart
+        })
+      })
+      debug('this.hashSects')
+      debug(this.hashSects.values())
+      resolve()
+    })
+  }
+  setChartFixed (chart) {
+    return new Promise((resolve) => {
+      addClass(chart, 'fix')
+      resolve()
+    })
+  }
+  setupChartPos (chartContainer) {
+    return new Promise((resolve) => {
+      debugScroll('chartContainer', chartContainer.clientWidth)
+      const flag = chartContainer.querySelector('.ratiowpr__chart') || false
+      const chart = flag || chartContainer.querySelector('.hichart') 
+      if (!chart) { return }
+      const height = chart.clientHeight
+      const width = chart.clientWidth
+      if (flag) {
+        chart.setAttribute('style', `top: 50%; left: 50%; margin-top: -${height / 2}px; margin-left: -${width / 2}px; width: ${chart.clientWidth}px; height: ${chart.clientHeight}px;`)
+      } else {
+        chart.setAttribute('style', `top: 50%; margin-top: -${height / 2}px; width: ${chart.clientWidth}px; height: ${chart.clientHeight}px;`)
+      }
+      resolve()
+    })
+  }
+  setSectFadeIn (sect) {
+    return new Promsie((resolve) => {
+      removeClass(sect, 'fadein')
+      resolve()
+    })
+  }
+  scrollHandler (event) {
+    const deviceHeight = verge.viewportH()
+    const curr = currentYPosition()
+    const middle = curr + deviceHeight / 2
+    const sects = this.hashSects.values()
+    const lastSect = document.querySelector('section.fadein')
+    let currSect = find(sects, (sect) => (sect.top <= middle && sect.bottom >= middle))
+
+    if (currSect && lastSect !== currSect.ele) {
+      if (currSect && currSect.chart) {
+        this.setupChartPos(currSect.chart).then(() => (currSect.ele && addClass(currSect.ele, 'fadein')))
+      } else {
+        currSect.ele && addClass(currSect.ele, 'fadein')
+      }
+      lastSect && removeClass(lastSect, 'fadein')
+      debugScroll('currSect', currSect.selector)
+    }
+    if (curr > 1) {
+      document.querySelector('.exception').setAttribute('style', 'position: fixed;')
+    } else {
+      document.querySelector('.exception').removeAttribute('style')
+    }
+  }
+  setScrollManager () {
+    return new Promise((resolve) => {
+      window.addEventListener('scroll', this.scrollHandler)
+      resolve()
+    })
+  }
+  resetScrollManager () {
+    return Promise.all([
+      new Promise((resolve) => {
+        windoe.removeEventListener('scroll', this.scrollHandler)
+        resolve()
+      }),
+      this.setScrollManager()
+    ])
+  }
+  fixSectChart (chart) {
+    return new Promise((resolve) => {
+      addClass(chart, 'fix')
+      resolve()
+    })
   }
 }
 window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('layoutDone', () => {
+    window.localStorage.debug = 'FERTILITY:*,FERTILITY:SCROLL,COMM'
     debug(location.href)
     const fertility = location.href.indexOf('article') === -1 ? new Fertility() : new Article()
     fertility.init()

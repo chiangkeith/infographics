@@ -104,14 +104,14 @@ module.exports = {
     plugins: [
         HTMLWebpackPluginConfig,
         HTMLWebpackPluginConfigArticle,
-        new webpack.optimize.UglifyJsPlugin({
-          uglifyOptions : {
-            compress: {
-                warnings: true,
-            },
-            mangle: false,
-          }
-        }),
+        // new webpack.optimize.UglifyJsPlugin({
+        //   uglifyOptions : {
+        //     compress: {
+        //         warnings: true,
+        //     },
+        //     mangle: false,
+        //   }
+        // }),
         new ExtractTextPlugin({
           filename: '[name]-[chunkhash].css',
         }),
