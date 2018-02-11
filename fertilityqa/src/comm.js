@@ -1,3 +1,5 @@
+const debug = require('debug')('COMM')
+
 export function trim(str) {
   return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
 }
@@ -46,4 +48,48 @@ export function getClientOS () {
     os = 'Linux'
   }
   return os
+}
+
+export function renderChart (ele, targKey) {
+  let configKey = ''
+  switch (targKey) {
+    case '1':
+    case '81':
+      configKey = 'M01'
+      break
+    case '11':
+    case '811':
+      configKey = 'M18'
+      break
+    case '14':
+    case '814':
+      configKey = 'M14'
+      break
+    case '141':
+    case '8141':
+      configKey = 'M141'
+      break
+    case '16112':
+    case '816112':
+    case '16251':
+    case '816251':
+          configKey = 'M15'
+      break
+    case '131':
+    case '8131':
+      configKey = 'M131'
+      break
+    case '23':
+    case '823':
+      configKey = 'M18'
+      break
+    case '16123':
+    case '816123':
+      configKey = 'M20'
+      break        
+  }
+  debug('targKey', targKey, typeof(targKey), ele)
+  debug('configKey', configKey)
+  if (!configKey) { return }
+  Highcharts.chart(ele, config[ configKey ])
 }

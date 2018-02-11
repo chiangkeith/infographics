@@ -1,7 +1,9 @@
 import './index.styl'
-import { addClass, getClientOS } from './comm'
+import { addClass, getClientOS, renderChart } from './comm'
 import { smoothScrollTo, elmYPosition } from 'kc-scroll'
+import * as config from './hichart'
 
+const debug = require('debug')('FERTILITY')
 class Fertility {
   init () {
     this.blocks = {}
@@ -13,6 +15,23 @@ class Fertility {
       this.reviseOpts(),
       this.setupOpening()
     ]).then(() => {
+      // renderChart(document.querySelector(`article[data-key="1"] .hichart`), '1')
+      // renderChart(document.querySelector(`article[data-key="81"] .hichart`), '81')
+      // renderChart(document.querySelector(`article[data-key="11"] .hichart`), '11')
+      // renderChart(document.querySelector(`article[data-key="811"] .hichart`), '811')
+      // renderChart(document.querySelector(`article[data-key="141"] .hichart`), '141')
+      // renderChart(document.querySelector(`article[data-key="14"] .hichart`), '14')
+      // renderChart(document.querySelector(`article[data-key="814"] .hichart`), '814')
+      // renderChart(document.querySelector(`article[data-key="16112"] .hichart`), '16112')
+      // renderChart(document.querySelector(`article[data-key="816112"] .hichart`), '816112')
+      // renderChart(document.querySelector(`article[data-key="16251"] .hichart`), '16251')
+      // renderChart(document.querySelector(`article[data-key="816251"] .hichart`), '816251')
+      // renderChart(document.querySelector(`article[data-key="131"] .hichart`), '131')
+      // renderChart(document.querySelector(`article[data-key="8131"] .hichart`), '8131')
+      // renderChart(document.querySelector(`article[data-key="23"] .hichart`), '23')
+      // renderChart(document.querySelector(`article[data-key="823"] .hichart`), '823')
+      // renderChart(document.querySelector(`article[data-key="16123"] .hichart`), '16123')
+      // renderChart(document.querySelector(`article[data-key="816123"] .hichart`), '816123')
       return this.suckBlocks().then(() => {
         return this.removeBlocks().then(() => {
           // console.log(this.blocks)
@@ -77,6 +96,7 @@ class Fertility {
           btn.removeEventListener('click', btnClickHandler)
           addClass(btn, 'invalid')
         })
+        renderChart(document.querySelector(`article[data-key="${targKey}"] .hichart`), targKey)
         smoothScrollTo({ yPos: elmYPosition(`article[data-key="${targKey}"]`), steps: this.scrollStep })
       }
       btns.map((btn) => {
@@ -113,9 +133,16 @@ class Fertility {
     xhttp.send()
   }
 }
+class Article {
+  init () {
+    debug('INIT ARTICLE')
+    renderChart(document.querySelector(`article[data-key="1"] .hichart`), '1')
+  }
+}
 window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('layoutDone', () => {
-    const fertility = new Fertility()
+    debug(location.href)
+    const fertility = location.href.indexOf('article') === -1 ? new Fertility() : new Article()
     fertility.init()
   })
 })

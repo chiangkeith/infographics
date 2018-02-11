@@ -11,6 +11,7 @@
   "author": "chiangkaichih@gmail.com",
   "license": "ISC",
   "dependencies": {
+    "debug": "^3.1.0",
     "kc-scroll": "^0.2.71",
     "lodash": "^4.17.2",
     "screenfull": "^3.3.1",

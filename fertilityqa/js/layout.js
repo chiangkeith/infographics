@@ -22,7 +22,7 @@ $("article").each(function(){
       }
 });
 
-const layoutDone = new Event('layoutDone')
-window.dispatchEvent(layoutDone)
+const layoutDone = new Event('layoutDone') 
+window.dispatchEvent(layoutDone) 
 
 });

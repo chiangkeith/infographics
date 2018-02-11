@@ -15,6 +15,18 @@ const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
     collapseInlineTagWhitespace: true
   }
 });
+const HTMLWebpackPluginConfigArticle = new HtmlWebpackPlugin({
+  template: `${__dirname}/article.html`,
+  filename: 'article.html',
+  inject: 'body',
+  minify: {
+    conservativeCollapse: true,
+    minifyJS: true,
+    collapseWhitespace: true,
+    removeComments: true,
+    collapseInlineTagWhitespace: true
+  }
+});
 
 const webpack = require('webpack');
 const CommonsChunkPlugin = require("webpack/lib/optimize/CommonsChunkPlugin");
@@ -91,6 +103,7 @@ module.exports = {
     },
     plugins: [
         HTMLWebpackPluginConfig,
+        HTMLWebpackPluginConfigArticle,
         new webpack.optimize.UglifyJsPlugin({
           uglifyOptions : {
             compress: {
