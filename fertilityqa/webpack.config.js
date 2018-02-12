@@ -118,6 +118,7 @@ module.exports = {
         new CopyWebpackPlugin([
           { from:'css', to:'css' },
           { from:'js', to:'js' }, 
+          { from:'src/data', to:'data' }, 
           { from:'images', to:'images' }
         ]),
         new CleanWebpackPlugin(pathsToClean, cleanOptions),

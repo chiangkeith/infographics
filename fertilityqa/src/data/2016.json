@@ -1,0 +1,21 @@
+{
+  "name" : "2016",
+  "children" : [
+    { "name" : "西班牙", "rate1" : 1.3 , "rate2" : 70.2, "class" : "H"  },
+    { "name" : "荷蘭", "rate1" : 1.7 , "rate2" : 75.0, "class" : "L"  },
+    { "name" : "義大利", "rate1" : 1.3 , "rate2" : 55.2, "class" : "L"  },
+    { "name" : "韓國", "rate1" : 1.2 , "rate2" : 58.4, "class" : "H"  },
+    { "name" : "德國", "rate1" : 1.5 , "rate2" : 73.6, "class" : "L"  },
+    { "name" : "澳洲", "rate1" : 1.8 , "rate2" : 71.6, "class" : "L"  },
+    { "name" : "葡萄牙", "rate1" : 1.4 , "rate2" : 70.5, "class" : "H"  },
+    { "name" : "日本", "rate1" : 1.5 , "rate2" : 68.1, "class" : "L"  },
+    { "name" : "OECD平均", "rate1" : 1.7 , "rate2" : 63.6, "class" : "A"  },
+    { "name" : "法國", "rate1" : 1.9 , "rate2" : 67.9, "class" : "L"  },
+    { "name" : "加拿大", "rate1" : 1.6 , "rate2" : 74.4, "class" : "L"  },
+    { "name" : "美國", "rate1" : 1.8 , "rate2" : 67.3, "class" : "L"  },
+    { "name" : "挪威", "rate1" : 1.7 , "rate2" : 75.9, "class" : "L"  },
+    { "name" : "芬蘭", "rate1" : 1.6 , "rate2" : 74.1, "class" : "L"  },
+    { "name" : "瑞典", "rate1" : 1.9 , "rate2" : 80.2, "class" : "L"  },
+    { "name" : "台灣", "rate1" : 1.2 , "rate2" : 59.6, "class" : "H"  },
+  ]
+}

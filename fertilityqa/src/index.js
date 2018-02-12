@@ -1,7 +1,8 @@
 import './index.styl'
+import { FertilityD3 } from './d3'
 import { addClass, elmYPosition, getClientOS, getPosition, renderChart, removeClass, hasClass } from './comm'
 import { currentYPosition, smoothScrollTo } from 'kc-scroll'
-import { find } from 'lodash'
+import { find, map } from 'lodash'
 import HashTable from 'jshashtable'
 import verge from 'verge'
 
@@ -143,6 +144,8 @@ class Article {
     this.init = this.init.bind(this)
     this.preCalc = this.preCalc.bind(this)
     this.scrollHandler = this.scrollHandler.bind(this)
+    this.scrollHandlerForFix = this.scrollHandlerForFix.bind(this)
+    this.scrollHandlerForLongFix = this.scrollHandlerForLongFix.bind(this)
     this.setScrollManager = this.setScrollManager.bind(this)
     this.resetScrollManager = this.resetScrollManager.bind(this)
   }
@@ -175,6 +178,8 @@ class Article {
       this.setScrollManager()
     ]).then(() => {
       debug('INIT FUNISHED')
+      this.d31 = new FertilityD3()
+      this.d31.init('#chart-d3-1')
     })
   }
   preCalc () {
@@ -269,6 +274,87 @@ class Article {
       resolve()
     })
   }
+  scrollHandlerForLongFix () {
+    const deviceHeight = verge.viewportH()
+    const sects = this.hashSects.values()
+    const curr = currentYPosition()
+    const currSect = find(sects, (sect) => (sect.top <= curr && sect.bottom >= curr))
+    this.longshowStart = this.longshowStart || document.querySelector('.longshow.start')
+    this.longshowEnd = this.longshowEnd || document.querySelector('.longshow.end')
+    if (!this.longshowStart || !this.longshowEnd) { return }
+    this.longfix = this.longfix || this.longshowStart.querySelector('.ratiowpr__chart')
+    if (!this.longfix) { return }
+    const longshowStartTop = elmYPosition({ ele: this.longshowStart })
+    const londshowEndTop = elmYPosition({ ele: this.longshowEnd })
+    if (longshowStartTop <= curr && londshowEndTop + this.longshowEnd.clientHeight >= curr + deviceHeight) {
+      addClass(this.longfix, 'keepshow')
+    } else {
+      removeClass(this.longfix, 'keepshow')
+    }
+  }
+  scrollHandlerForFix (event) {
+    const deviceHeight = verge.viewportH()
+    const sects = this.hashSects.values()
+    const curr = currentYPosition()
+    const currSect = find(sects, (sect) => (sect.top <= curr && sect.bottom >= curr))
+
+    const fixup = (container) => new Promise((resolve) => {
+      container.removeAttribute('style')
+      const chartContainerWidth = container.clientWidth
+      const chartContainerHeight = container.clientHeight
+      const width = `width: ${chartContainerWidth}px;`
+      const height = `height: ${chartContainerHeight}px;`
+      container.setAttribute('style', `position: fixed; top: 0;${width}${height}`)
+      resolve()
+    })
+    const destroyFixup = (container) => new Promise((resolve) => {
+      container.removeAttribute('style')
+      resolve()
+    })
+    const goWithParent = (container) => new Promise((resolve) => {
+      container.removeAttribute('style')
+      const chartContainerWidth = container.clientWidth
+      const chartContainerHeight = container.clientHeight
+      const width = `width: ${chartContainerWidth}px;`
+      const height = `height: ${chartContainerHeight}px;`
+      container.setAttribute('style', `position: absolute; bottom: 0;${width}${height}`)
+      resolve()
+    })
+    if (currSect && currSect.ele.className && currSect.ele.className.indexOf('fix') > -1) {
+      const sectHeight = currSect.ele.clientWidth
+      currSect.ele.setAttribute('style', `height: ${sectHeight}px;`)
+
+      const chartContainer = currSect.ele.querySelector('.chart-container')
+      const textContainer = currSect.ele.querySelector('.text-container')
+      const ratiowpr = chartContainer.querySelector('.ratiowpr > div')
+      const ratiowprTop = elmYPosition({ ele: ratiowpr })
+      const firstChild = textContainer.firstElementChild
+      const lastChild = textContainer.lastElementChild
+      const firstChildTop = elmYPosition({ ele: firstChild })
+      const lastChildTop = elmYPosition({ ele: lastChild })
+      const lastChildBtm = lastChildTop + lastChild.clientHeight
+      const currSectBtm = elmYPosition({ ele: currSect.ele }) + currSect.ele.clientHeight
+      debug('currSectBtm', currSectBtm)
+      debug('ratiowprTop', ratiowprTop)
+      debug('ratiowprTop + ratiowpr.clientHeight', ratiowprTop + ratiowpr.clientHeight)
+      if (ratiowpr 
+                && firstChildTop <= curr 
+                && ratiowpr.clientHeight <= currSectBtm - curr) {
+        fixup(ratiowpr)
+      }
+      else if (ratiowpr.clientHeight >= currSectBtm - curr) {
+        goWithParent(ratiowpr)
+      } else {
+        destroyFixup(ratiowpr)
+      }
+    } else if (currSect && currSect.ele.className.indexOf('fix') === -1) {
+      const fixSection = [...document.querySelectorAll('section.fix')]
+      map(fixSection, (section) => {
+        const ratiowpr = section.querySelector('.chart-container .ratiowpr > div')
+        destroyFixup(ratiowpr)
+      })
+    }
+  }
   scrollHandler (event) {
     const deviceHeight = verge.viewportH()
     const curr = currentYPosition()
@@ -316,13 +402,17 @@ class Article {
   setScrollManager () {
     return new Promise((resolve) => {
       window.addEventListener('scroll', this.scrollHandler)
+      window.addEventListener('scroll', this.scrollHandlerForFix)
+      window.addEventListener('scroll', this.scrollHandlerForLongFix)
       resolve()
     })
   }
   resetScrollManager () {
     return Promise.all([
       new Promise((resolve) => {
-        windoe.removeEventListener('scroll', this.scrollHandler)
+        window.removeEventListener('scroll', this.scrollHandler)
+        window.removeEventListener('scroll', this.scrollHandlerForFix)
+        window.removeEventListener('scroll', this.scrollHandlerForLongFix)
         resolve()
       }),
       this.setScrollManager()
@@ -337,7 +427,7 @@ class Article {
 }
 window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('layoutDone', () => {
-    window.localStorage.debug = 'FERTILITY:*,FERTILITY:SCROLL,COMM'
+    window.localStorage.debug = 'FERTILITY:*,FERTILITY:SCROLL,COMM,d3'
     debug(location.href)
     const fertility = location.href.indexOf('article') === -1 ? new Fertility() : new Article()
     fertility.init()

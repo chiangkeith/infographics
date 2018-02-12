@@ -1,0 +1,21 @@
+{
+  "name" : "2004",
+  "children" : [
+    { "name" : "西班牙", "rate1" : 1.3 , "rate2" : 58.2, "class" : "H"  },
+    { "name" : "荷蘭", "rate1" : 1.7 , "rate2" : 67.0, "class" : "L"  },
+    { "name" : "義大利", "rate1" : 1.3 , "rate2" : 50.8, "class" : "L"  },
+    { "name" : "韓國", "rate1" : 1.2 , "rate2" : 54.1, "class" : "H"  },
+    { "name" : "德國", "rate1" : 1.4 , "rate2" : 65.8, "class" : "L"  },
+    { "name" : "澳洲", "rate1" : 1.8 , "rate2" : 66.7, "class" : "L"  },
+    { "name" : "葡萄牙", "rate1" : 1.4 , "rate2" : 66.8, "class" : "H"  },
+    { "name" : "日本", "rate1" : 1.3 , "rate2" : 60.2, "class" : "L"  },
+    { "name" : "OECD平均", "rate1" : 1.7 , "rate2" : 59.9, "class" : "A"  },
+    { "name" : "法國", "rate1" : 1.9 , "rate2" : 64.3, "class" : "L"  },
+    { "name" : "加拿大", "rate1" : 1.5 , "rate2" : 73.4, "class" : "L"  },
+    { "name" : "美國", "rate1" : 2.0 , "rate2" : 69.2, "class" : "L"  },
+    { "name" : "挪威", "rate1" : 1.8 , "rate2" : 75.7, "class" : "L"  },
+    { "name" : "芬蘭", "rate1" : 1.8 , "rate2" : 72.0, "class" : "L"  },
+    { "name" : "瑞典", "rate1" : 1.4 , "rate2" : 76.6, "class" : "L"  },
+    { "name" : "台灣", "rate1" : 1.2 , "rate2" : 53.5, "class" : "H"  },
+  ]
+}
