@@ -1,5 +1,5 @@
 import './index.styl'
-import { addClass, elmYPosition, getClientOS, renderChart, removeClass, hasClass } from './comm'
+import { addClass, elmYPosition, getClientOS, getPosition, renderChart, removeClass, hasClass } from './comm'
 import { currentYPosition, smoothScrollTo } from 'kc-scroll'
 import { find } from 'lodash'
 import HashTable from 'jshashtable'
@@ -150,13 +150,16 @@ class Article {
     debug('INIT ARTICLE')
     renderChart(document.querySelector(`.chart-container.a1m01 .hichart`), '1')
     // renderChart(document.querySelector(`.a1m18 .hichart`), '11')
-    renderChart(document.querySelector(`.chart-container.a1m18 .hichart`), 'm18')
-    renderChart(document.querySelector(`.chart-container.a2m18 .hichart`), '11')
+    // renderChart(document.querySelector(`.chart-container.a1m18 .hichart`), 'm18')
+    renderChart(document.querySelector(`.chart-container.a2m08 .hichart`), 'm08')
+    // renderChart(document.querySelector(`.chart-container.a2m18 .hichart`), '11')
+    renderChart(document.querySelector(`.chart-container.a2m18-2 .hichart`), '11')
     // renderChart(document.querySelector(`.chart-container.a2m13 .hichart`), '11')
     renderChart(document.querySelector(`.chart-container.a2m14 .hichart`), 'm14')
-    renderChart(document.querySelector(`.chart-container.a3m15 .hichart`), 'm15')
+    // renderChart(document.querySelector(`.chart-container.a3m15 .hichart`), 'm15')
     renderChart(document.querySelector(`.chart-container.a3t12 .hichart`), 't12')
-    renderChart(document.querySelector(`.chart-container.a3m18 .hichart`), 'm18')
+    renderChart(document.querySelector(`.chart-container.a4m18 .hichart`), 'm18')
+    // renderChart(document.querySelector(`.chart-container.a4t13 .hichart`), 't13')
     renderChart(document.querySelector(`.chart-container.a4m22 .hichart`), 'm22')
     renderChart(document.querySelector(`.chart-container.a4m25 .hichart`), 'm25')
     renderChart(document.querySelector(`.chart-container.a4m28 .hichart`), 'm28')
@@ -166,6 +169,7 @@ class Article {
     renderChart(document.querySelector(`.chart-container.a4t18 .hichart`), 't18')
     renderChart(document.querySelector(`.chart-container.a4t20 .hichart`), 't20')
     document.querySelector('.exception').setAttribute('style', 'opacity: 1;')
+    document.querySelector('.source-set').setAttribute('style', 'opacity: 1;')
     Promise.all([
       this.preCalc(),
       this.setScrollManager()
@@ -215,17 +219,47 @@ class Article {
   }
   setupChartPos (chartContainer) {
     return new Promise((resolve) => {
+      const sourceSet = chartContainer.parentNode.querySelector('.source-set')
       debugScroll('chartContainer', chartContainer.clientWidth)
+      debugScroll('chartContainer sibling', sourceSet)
       const flag = chartContainer.querySelector('.ratiowpr__chart') || false
-      const chart = flag || chartContainer.querySelector('.hichart') 
+      const chart = flag || chartContainer.querySelector('.combo') || chartContainer.querySelector('.hichart') 
       if (!chart) { return }
+      chart.setAttribute('style', 'position: relative;')
       const height = chart.clientHeight
       const width = chart.clientWidth
+      const top = `top: calc(50% - ${height / 2}px);`
+      const left = `left: calc(50% - ${width / 2}px);`
+      debug('width', width)
       if (flag) {
-        chart.setAttribute('style', `top: 50%; left: 50%; margin-top: -${height / 2}px; margin-left: -${width / 2}px; width: ${chart.clientWidth}px; height: ${chart.clientHeight}px;`)
+        chart.setAttribute('style', `${top}${left} width: ${width}px; z-index: 1;`)
       } else {
-        chart.setAttribute('style', `top: 50%; margin-top: -${height / 2}px; width: ${chart.clientWidth}px; height: ${chart.clientHeight}px;`)
+        chart.setAttribute('style', `${top} width: ${width}px; z-index: 1;`)
       }
+      if (sourceSet) {        
+        sourceSet.removeAttribute('style')
+        // const sourcePos = getPosition(sourceSet)
+        const align = sourceSet.getAttribute('textalign')
+        const textAlign = align ? align === 'right'
+        ? `text-align: center;`
+        : `text-align: ${align};`
+        : ``
+        const sourceHight = sourceSet.clientHeight
+        const sourceWidth = sourceSet.clientWidth
+        const sourceTop = `top: calc(50% - ${height / 2}px - ${align ? 40 : 0}px);`
+        const sourceLeft = flag ? align !== 'right' 
+                                ? left
+                                : `left: 50%;`
+                                : ''
+        // const sourceLeft = left
+        sourceSet.setAttribute('style', `${sourceTop}${sourceLeft}width: ${sourceWidth}px; height: ${sourceHight}px;position: fixed;z-index: 2;${textAlign}`)
+      }
+      resolve()
+    })
+  }
+  setCoverout (line) {
+    return new Promise((resolve) => {
+      addClass(line, 'active')
       resolve()
     })
   }
@@ -243,19 +277,40 @@ class Article {
     const lastSect = document.querySelector('section.fadein')
     let currSect = find(sects, (sect) => (sect.top <= middle && sect.bottom >= middle))
 
+    const fadein = () => {
+      currSect.ele && addClass(currSect.ele, 'fadein')
+      const line = currSect.ele.querySelector('.ratiowpr__chart__img.line')
+      line && this.setCoverout(line)
+    }
     if (currSect && lastSect !== currSect.ele) {
       if (currSect && currSect.chart) {
-        this.setupChartPos(currSect.chart).then(() => (currSect.ele && addClass(currSect.ele, 'fadein')))
+        this.setupChartPos(currSect.chart).then(() => fadein())
       } else {
-        currSect.ele && addClass(currSect.ele, 'fadein')
+        fadein()
       }
       lastSect && removeClass(lastSect, 'fadein')
       debugScroll('currSect', currSect.selector)
     }
     if (curr > 1) {
-      document.querySelector('.exception').setAttribute('style', 'position: fixed;')
+      const sourceSet = document.querySelector('.source-set')
+      const exception = document.querySelector('.exception')
+      if (sourceSet) {
+        sourceSet.removeAttribute('style')
+        exception.removeAttribute('style')
+        const sourceHight = sourceSet.clientHeight
+        const sourceWidth = sourceSet.clientWidth
+        const sourcePos = getPosition(sourceSet)
+        const sourceTop = `top: ${sourcePos.y}px;`
+        const sourceLeft = ``
+        sourceSet.setAttribute('style', `position: fixed;${sourceTop}${sourceLeft} width: ${sourceWidth}px; height: ${sourceHight}px;`)
+        exception.setAttribute('style', `position: fixed;top: ${sourcePos.y + sourceHight}px;`)
+      } else {
+        exception.setAttribute('style', `position: fixed;`)
+      }
     } else {
       document.querySelector('.exception').removeAttribute('style')
+      document.querySelector('.source-set').removeAttribute('style')
+      // document.querySelector('.source-set').removeAttribute('style')
     }
   }
   setScrollManager () {

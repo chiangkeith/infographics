@@ -1000,7 +1000,7 @@ export const M18_REAL = {
   subtitle: {
       text: ''
   },
-xAxis: {
+  xAxis: {
       categories: ['韓國', '丹麥', '盧森堡', '葡萄牙', '瑞典','法國','德國','奧地利','比利時','希臘','冰島','匈牙利','英國','愛沙尼亞','瑞士','挪威','波蘭','西班牙','荷蘭','OCED 平均','澳洲','斯洛維尼亞','芬蘭','台灣','紐西蘭','日本','以色列','捷克','斯洛伐克','加拿大','愛爾蘭','美國'],
       title: {
           text: null
@@ -1040,6 +1040,69 @@ xAxis: {
   series: [{
       name: '百分比',
       data: [0,2.9,3.2,3.8,4.2,4.4,5.2,5.6,5.9,6.1,6.9,7.7,7.9,10.2,10.6,11.1,11.4,12.1,12.9,13.5,14.1,16.1,17.1,18.03,20.5,22.3,22.4,23,24.4,32.3,41.6,52.7],
+      color: '#C1272D'
+  }]
+}
+export const M08 = {
+  chart: {
+      type: 'bar',
+      borderWidth: 0,
+      marginTop: 20,
+      marginBottom: 40,
+      backgroundColor: '#f8f3d6',
+  },
+  credits: {
+      enabled: false
+  },
+  legend: {
+      enabled: false
+  },
+  title: {
+      text: ''
+  },
+  subtitle: {
+      text: ''
+  },
+  xAxis: {
+      categories: ['發放生育或教育津貼', '給予托育費用補助', '提供鼓勵生育工作環境', '給予未成年子女教養支出之<br/>稅負減免', '給予養育 2 名及以上子女家庭優先承購國宅、<br/>申請外傭或購屋貸款利息補貼','配偶或家人願分擔家務<br/>及育兒工作','給予人工生殖補助','其他'],
+      title: {
+          text: null
+      }
+  },
+  yAxis: {
+      min: 0,
+      gridLineColor: '#e6e6e6',
+      gridLineWidth: 1,
+      title: {
+          text: '',
+          align: 'high'
+      },
+      labels: {
+          overflow: 'justify'
+      }
+  },
+  tooltip: {
+      valueSuffix: '%',
+      enabled: false
+  },
+  plotOptions: {
+      bar: {
+          pointPadding: 0.1,
+          borderWidth: 0,
+          dataLabels: {
+              format:'{point.y:.1f}%',
+              enabled: true,
+              color: '#1A1A1A',
+               style:{
+               fontSize: '16px',
+               textOutline: '0px'
+              }
+          }
+      }
+  },
+  series: [{
+      name: '因素',
+      data: [28.87, 27.68, 14.52, 10.53, 7.3, 5.85, 4.47, 0.77],
       color: '#C1272D'
   }]
 }

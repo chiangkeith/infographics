@@ -1,5 +1,9 @@
 *
   transition opacity 0.75s
+  position relative
+  z-index 2
+body
+  background-color #f8f3d6
 .ratiowpr
   box-sizing border-box
   padding-bottom 0
@@ -10,25 +14,79 @@ li.invalid
     cursor default
     background-color #ded3a9
 .articlewpr
+  background-color transparent
+  &:first-child
+    section
+      .chart-container
+        &.fix
+          h3, .source
+            opacity 1
+
   section
     min-height 100vh
+    max-width 100vw
+    background-color transparent
+    
+    &.empty
+      min-height 25vh
     .chart-container
       .ratiowpr
         height 100%
+        &__desc
+          width 50%
+          font-size 18px
+          line-height 1.5
+          background-color rgba(255, 255, 255, 0.65)
+          padding 20px
+          border-radius 10px
+          margin  0 auto
+          position relative
+          z-index 3
         &__chart
           position relative
           width 100%
           height 100%
-          
+          display flex
+          justify-content center
+          align-items center
+          _width = 700px
+          &__img__container
+            width _width
+            height _width * (945 / 1601)
+            position relative        
           &__img
             position absolute
-            top 50%
+            top 0
             left 0
-            margin-top -25%
             width 100%
+            height 100%
+            background-repeat no-repeat
+            background-position 0 center
+            background-size auto 100%
+            &.bg
+              &.t1w
+                background-image url(../images/DF_T1_wbg.png)
+              &.m15w
+                background-image url(../images/DF_M15_w.png)
+            &.line
+              width 0
+              &.active
+                width 100%
+                animation cover-out 0.75s linear
+              &.t1w
+                background-image url(../images/0212DF_T1_w.jpg)
+              &.t2w
+                background-image url(../images/0212DF_T2_w.jpg)
+              &.t3w
+                background-image url(../images/0212DF_T3_w.jpg)
+            &.line-single
+              &.t1w
+                background-image url(../images/DF_T1_w.png)
+
+
           &__desc
             position absolute
-            top calc(100px)
+            top 100px
             width 50%
             left 50%
             margin-left -25%
@@ -41,19 +99,31 @@ li.invalid
             max-height 65%
         img
           width 100%
+          height 100%
+          object-fit contain
+          // object-position center center
       &.fix
         h3, .source
           opacity 0
           transition opacity 2s
         .ratiowpr
+            
           &__chart
             opacity 0
             position fixed
             width calc(100% - 200px)
             height calc(100% - 100px)
+          .source-set
+            // position fixed
+            opacity 0
           .hichart
             position fixed
             opacity 0
+          .combo
+            position fixed
+            opacity 0
+            > .hichart
+              position relative
           .exception
             opacity 0
         // &.firstSection
@@ -67,8 +137,53 @@ li.invalid
           .ratiowpr
             &__chart, .hichart
               opacity 1
+            .source-set
+              opacity 1
             .exception
               opacity 1
+            .combo
+              opacity 1
+@media (min-width 900px)
+  .articlewpr
+    section
+      .chart-container
+          &.fix
+            .ratiowpr
+              &__chart
+                _width = 800px
+                &__img__container
+                  width _width
+                  height _width * (945 / 1601)
+@media (min-width 1000px)
+  .articlewpr
+    section
+      .chart-container
+          &.fix
+            .ratiowpr
+              &__chart
+                _width = 1000px
+                &__img__container
+                  width _width
+                  height _width * (945 / 1601)
+
+@media (min-width 1100px)
+  .articlewpr
+    section
+      max-width 1300px
+      > div
+        &:first-child
+          padding 0 20px 0 50px
+        &:last-child
+          padding 0 50px 0 20px
+      .chart-container
+        &.fix
+          .ratiowpr
+            &__chart
+              max-width calc(1100px)
+              _width = 1000px
+              &__img__container
+                width _width
+                height _width * (945 / 1601)
 @keyframes cover-out
   0%
     width 0
