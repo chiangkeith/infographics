@@ -1,8 +1,8 @@
 import './index.styl'
 import { FertilityD3 } from './d3'
-import { addClass, elmYPosition, getClientOS, getPosition, renderChart, removeClass, hasClass } from './comm'
+import { addClass, elmYPosition, getClientOS, getPosition, renderChart, removeClass, hasClass, isDescendant } from './comm'
 import { currentYPosition, smoothScrollTo } from 'kc-scroll'
-import { find, map } from 'lodash'
+import { find, get, map } from 'lodash'
 import HashTable from 'jshashtable'
 import verge from 'verge'
 
@@ -144,7 +144,7 @@ class Fertility {
 }
 class Article {
   constructor () {
-    // this.hashArticles = new HashTable()
+    this.hashArticles = new HashTable()
     this.hashSects = new HashTable()
     this.init = this.init.bind(this)
     this.preCalc = this.preCalc.bind(this)
@@ -160,27 +160,30 @@ class Article {
 
     document.querySelector('.exception').setAttribute('style', 'opacity: 1;')
     document.querySelector('.source-set').setAttribute('style', 'opacity: 1;')
+    
     Promise.all([
-      this.preCalc(),
       this.renderHichart(),
       this.setScrollManager(),
     ]).then(() => {
       debug('INIT FUNISHED')
       this.d3 = new FertilityD3()
       this.d3.init('#chart-d3-1')
+      this.preCalc()
     })
   }
   renderHichart () {
     return Promise.all(
       map([
-        renderChart(document.querySelector(`.chart-container.a1m01 .hichart`), '1'),
+        renderChart(document.querySelector(`.chart-container.a1m01 .hichart`), 'm01'),
         renderChart(document.querySelector(`.chart-container.a2m08 .hichart`), 'm08'),
         renderChart(document.querySelector(`.chart-container.a2m08-2 .hichart`), 'm08'),
-        renderChart(document.querySelector(`.chart-container.a2m18-2 .hichart`), '11'),
-        renderChart(document.querySelector(`.chart-container.a2m18-3 .hichart`), '11'),
+        renderChart(document.querySelector(`.chart-container.a2m18-2 .hichart`), 'm18'),
+        renderChart(document.querySelector(`.chart-container.a2m18-3 .hichart`), 'm18'),
         renderChart(document.querySelector(`.chart-container.a2m14 .hichart`), 'm14'),
         renderChart(document.querySelector(`.chart-container.a3m15 .hichart`), 'm15'),
         renderChart(document.querySelector(`.chart-container.a3m15-2 .hichart`), 'm15'),
+        renderChart(document.querySelector(`.chart-container.a3m15-3 .hichart`), 'm15'),
+        // renderChart(document.querySelector(`.chart-container.a3m15-4 .hichart`), 'm15'),
         renderChart(document.querySelector(`.chart-container.a3t12 .hichart`), 't12'),
         renderChart(document.querySelector(`.chart-container.a3t12-2 .hichart`), 't12'),
         renderChart(document.querySelector(`.chart-container.a4m18 .hichart`), 'm18'),
@@ -188,11 +191,13 @@ class Article {
         renderChart(document.querySelector(`.chart-container.a4m22 .hichart`), 'm22'),
         renderChart(document.querySelector(`.chart-container.a4m25 .hichart`), 'm25'),
         renderChart(document.querySelector(`.chart-container.a4m28 .hichart`), 'm28'),
+        renderChart(document.querySelector(`.chart-container.a4m26 .hichart`), 'm26'),
+        renderChart(document.querySelector(`.chart-container.a4m27 .hichart`), 'm27'),
         renderChart(document.querySelector(`.chart-container.a4t15 .hichart`), 't15'),
         renderChart(document.querySelector(`.chart-container.a4t18 .hichart`), 't18'),
         renderChart(document.querySelector(`.chart-container.a4t20 .hichart`), 't20'),
         renderChart(document.querySelector(`.chart-container.a4t20-2 .hichart`), 't20'),
-      ], new Promise(resolve => resolve()))
+      ], () => new Promise(resolve => resolve()))
     )
   }
   preCalc () {
@@ -205,6 +210,7 @@ class Article {
         map(sects, (sect, ind) => {
           addClass(sect, `article${index}-section${ind}`)
         })
+        this.hashArticles.put(index, { index, article })
       })
 
       debug('Abt to write all section basic info to hash.')
@@ -292,9 +298,10 @@ class Article {
     const sects = this.hashSects.values()
     const curr = currentYPosition()
     const currSect = find(sects, (sect) => (sect.top <= curr && sect.bottom >= curr))
-    // currSect && debug('currSect.selector.indexOf', currSect.selector.indexOf('trigger-d3-auto'))
+    debug('this.triggered', this.triggered)
+    currSect && debug('currSect.selector.indexOf', currSect.selector.indexOf('trigger-d3-auto'))
 
-    if (this.triggered || (currSect && currSect.selector.indexOf('trigger-d3-auto') === -1)) { return }
+    if (this.triggered || !currSect || (currSect && currSect.selector.indexOf('trigger-d3-auto') === -1)) { return }
     let i = 1
     const playD3 = setInterval(() => {
       let year
@@ -421,11 +428,7 @@ class Article {
         const lastChildTop = elmYPosition({ ele: lastChild })
         const lastChildBtm = lastChildTop + lastChild.clientHeight
         const currSectBtm = elmYPosition({ ele: section }) + section.clientHeight
-        // if (firstChildTop <= middle) {
-        //   destroyFixup(ratiowpr)
-        // } else if (lastChildBtm >= middle){
-        //   // goWithSibling(ratiowpr, currSectBtm - lastChildBtm)
-        // }
+
         if (ratiowpr && ratiowprTop <= middle && middle + ratiowpr.clientHeight <= lastChildBtm && firstChildTop <= middle) {
           fixup(ratiowpr)
         } else if (middle + ratiowpr.clientHeight >= lastChildBtm) {
@@ -442,6 +445,31 @@ class Article {
     const sects = this.hashSects.values()
     const lastSect = document.querySelector('section.fadein')
     let currSect = find(sects, (sect) => (sect.top <= middle && sect.bottom >= middle))
+    // let currSect = find(sects, (sect) => {
+    //   const sectTop = elmYPosition({ ele: sect.ele })
+    //   const sectBtm = sectTop + sect.ele.clientHeight
+    //   const chart = sect.ele.querySelector('.chart-container')
+    //   // chart && this.setChartFixed(chart)
+    //   debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.height} >>`, `${sect.ele.clientHeight}`)
+    //   debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.top} >>`, `${sectTop}`)
+    //   debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.bottom} >>`, `${sectBtm}`)
+    //   this.hashSects.put(sect.selector, {
+    //     ele: sect.ele,
+    //     height: sect.ele.clientHeight,
+    //     top: sectTop,
+    //     bottom: sectBtm,
+    //     selector: sect.selector,
+    //     chart
+    //   })
+    //   return sectTop <= middle && sectBtm >= middle
+    // })
+    const nodeParent = currSect ? isDescendant(currSect.ele, { classname: 'articlewpr' }) : null
+    const nodeParentInd = get(find(this.hashArticles.values(), (a) => a.article === nodeParent), [ 'index' ])
+    const makers = document.querySelectorAll('.markerwpr .marker--btn')
+    const lastArticle = makers[this.currentArticle]
+    this.currentArticle !==  nodeParentInd && lastArticle && removeClass(makers[this.currentArticle], 'current')
+    nodeParentInd && addClass(makers[nodeParentInd], 'current')
+    this.currentArticle = nodeParentInd
 
     const fadein = () => {
       currSect.ele && addClass(currSect.ele, 'fadein')
@@ -535,6 +563,7 @@ class ArticleMobile extends Article{
         map(sects, (sect, ind) => {
           addClass(sect, `article${index}-section${ind}`)
         })
+        this.hashArticles.put(index, { index, article })
       })
   
       debugRaw('FERTILITY:MOBILE:PreCalc')('Abt to write all section basic info to hash.')
@@ -579,6 +608,15 @@ class ArticleMobile extends Article{
     const fadein = () => {
       currSect.ele && addClass(currSect.ele, 'fadein')
     }
+    const nodeParent = currSect ? isDescendant(currSect.ele, { classname: 'articlewpr' }) : null
+    const nodeParentInd = get(find(this.hashArticles.values(), (a) => a.article === nodeParent), [ 'index' ])
+    const makers = document.querySelectorAll('.markerwpr .marker--btn')
+    const lastArticle = makers[this.currentArticle]
+    this.currentArticle !==  nodeParentInd && lastArticle && removeClass(makers[this.currentArticle], 'current')
+    nodeParentInd && addClass(makers[nodeParentInd], 'current')
+    debugMobile('nodeParent', nodeParent)
+    debugMobile('nodeParentInd', nodeParentInd)
+    this.currentArticle = nodeParentInd
     if (currSect && lastSect !== currSect.ele) {
       fadein()
       lastSect && removeClass(lastSect, 'fadein')
@@ -623,6 +661,7 @@ window.addEventListener('DOMContentLoaded', () => {
   })
   window.addEventListener('resize', () => {
     // fertility.destroy()
-    location.reload()
+    // location.reload()
+    fertility.preCalc()
   })
 })

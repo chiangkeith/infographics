@@ -285,6 +285,7 @@ export const M14_REAL = {
           }
       }
   }, { // Secondary yAxis
+      max:100,
       title: {
           text: '使用率（%）',
           style: {
@@ -299,6 +300,7 @@ export const M14_REAL = {
       },
       opposite: true
   }],
+  exporting: { enabled: false },
   tooltip: {
       enabled: false
   },
@@ -307,6 +309,16 @@ export const M14_REAL = {
     pointPadding: 0.1,
     borderWidth: 0,
     dataLabels:{
+       formatter: function(){
+            var text='';
+           if(this.series.name=='使用率'){
+               text = this.y + '%';
+           }
+           else{
+               text = this.y;
+           }
+           return text;
+       },
        enabled:true,
        color: '#1A1A1A',
        style:{
@@ -534,14 +546,19 @@ export const T12 = {
         type: 'column',
         borderWidth: 0,
         marginTop:20,
-        marginBottom: 40,
+        marginBottom: 60,
         backgroundColor: '#f8f3d6',
   },
     credits: {
         enabled: false
     },
     legend: {
-        enabled: false
+        enabled: true,
+        align: 'right',
+        verticalAlign: 'bottom',
+
+        x: 0,
+        y: 10
     },
     title: {
         text: ''
@@ -557,7 +574,7 @@ export const T12 = {
     },
     yAxis: {
         min: 0,
-        max: 110,
+        max: 100,
         gridLineColor: '#e6e6e6',
         gridLineWidth: 1,
         title: {
@@ -602,20 +619,25 @@ export const M22 = {
       type: 'column',
       borderWidth: 0,
       marginTop:20,
-      marginBottom: 40,
+      marginBottom: 80,
       backgroundColor: '#f8f3d6',
   },
   credits: {
       enabled: false
   },
   legend: {
-      enabled: false
+      enabled: true,
+      align: 'right',
+      verticalAlign: 'bottom',
+
+      x: 0,
+      y: 5
   },
   title: {
       text: ''
   },
   xAxis: {
-      categories: ['女性', '育有 2 歲以下兒童 OECD 平均工時', '育有 2 歲以下兒童 歐盟平均工時', '育有 3-5 歲兒童 OECD 平均工時', '育有 3-5 歲兒童 歐盟平均工時']
+      categories: ['台灣有 6 歲以下小孩女性', '育有 2 歲以下兒童 OECD 平均工時', '育有 2 歲以下兒童 歐盟平均工時', '育有 3-5 歲兒童 OECD 平均工時', '育有 3-5 歲兒童 歐盟平均工時']
   },
   yAxis: {
       min: 0,
@@ -627,11 +649,11 @@ export const M22 = {
   },
   tooltip: {
   //borderColor: null
-      pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+      pointFormat: '<span style="color:{series.color}">{series.name}</span>: {point.percentage:0.1f}%<br/>',
       shared: false,
       backgroundColor: '#ffffff',
       borderWidth: 0,
-      enabled:false
+      enabled:true
   },
   plotOptions: {
       column: {
@@ -650,19 +672,19 @@ export const M22 = {
       }
   },
   series: [{
-      name: '1-29',
+      name: '1-29 小時',
       data: [3.39, 24.52, 20.96, 25.27, 22.31],
       color:'#0083C8'
   }, {
-      name: '30-39',
+      name: '30-39 小時',
       data: [3.95, 26.01, 25.20, 25.95, 25.48],
       color:'#BA8A00'
   }, {
-      name: '40-44',
+      name: '40-44 小時',
       data: [68.15, 38.31, 45.62, 38.43, 44.97],
       color:'#C1272D'
   }, {
-      name: '45小時以上',
+      name: '45 小時以上',
       data: [24.51, 8.77, 5.72, 9.61, 6.50],
       color:'#808080'
   }, {
@@ -788,7 +810,132 @@ export const M28 = {
       }]
   }]
 }
-export const M26 = {}
+export const M26 = {
+  chart: {
+      type: 'bar',
+      borderWidth: 0,
+      marginTop:20,
+      marginBottom: 40,
+      backgroundColor: '#f8f3d6',
+  },
+  credits: {
+      enabled: false
+  },
+  legend: {
+      enabled: false
+  },
+  title: {
+      text: ''
+  },
+  subtitle: {
+      text: ''
+  },
+  xAxis: {
+      categories: ['自己照顧<br/>一方未就業，領未就業育兒津貼', '自己照顧<br>領育兒留職停薪津貼', '親屬照顧', '褓母照顧', '公私協力托嬰中心','私立托嬰中心'],
+      title: {
+          text: null
+      }
+  },
+  yAxis: {
+      min: 0,
+      gridLineColor: '#e6e6e6',
+      gridLineWidth: 1,
+      title: {
+          text: '',
+          align: 'high'
+      },
+      labels: {
+          overflow: 'justify'
+      }
+  },
+  tooltip: {
+      valueSuffix: '%',
+      enabled:false
+  },
+  plotOptions: {
+      bar: {
+          pointPadding: 0.1,
+          borderWidth: 0,
+          dataLabels: {
+              format:'{point.y:.1f}%',
+              enabled: true,
+              color: '#1A1A1A',
+               style:{
+               fontSize: '16px',
+               textOutline: '0px'
+              }
+          }
+      }
+  },
+  series: [{
+      name: '比例',
+      data: [41.86, 8.81, 25.11, 9.88, 0.76,2.52],
+      color: '#C1272D'
+  }]
+}
+export const M27 = {
+  chart: {
+      type: 'bar',
+      borderWidth: 0,
+      marginTop:20,
+      marginBottom: 40,
+      backgroundColor: '#f8f3d6',
+  },
+  credits: {
+      enabled: false
+  },
+  legend: {
+      enabled: false
+  },
+  title: {
+      text: ''
+  },
+  subtitle: {
+      text: ''
+  },
+  xAxis: {
+      categories: ['員工人數少，無法提供', '公司為家族企業可自行放假休息', '業務繁忙無法提供', '員工可用其他假別替代', '懷孕婦女自行離職','不知道有此規定','其他'],
+      title: {
+          text: null
+      }
+  },
+  yAxis: {
+      min: 0,
+      gridLineColor: '#e6e6e6',
+      gridLineWidth: 1,
+      title: {
+          text: '',
+          align: 'high'
+      },
+      labels: {
+          overflow: 'justify'
+      }
+  },
+  tooltip: {
+      valueSuffix: '%',
+      enabled:false
+  },
+  plotOptions: {
+      bar: {
+          pointPadding: 0.1,
+          borderWidth: 0,
+          dataLabels: {
+              format:'{point.y:.1f}%',
+              enabled: true,
+              color: '#1A1A1A',
+               style:{
+               fontSize: '16px',
+               textOutline: '0px'
+              }
+          }
+      }
+  },
+  series: [{
+      name: '比例',
+      data: [56.5, 13.5, 11.4, 11, 5.1,1.3,1.3],
+      color: '#C1272D'
+  }]
+}
 export const T15 = {
   chart: {
       type: 'bar',
@@ -1218,4 +1365,59 @@ export const M15_REAL = {
       ]
     }
   ]
+}
+export const M01_REAL = {
+  chart: {
+      type: 'line',
+      borderWidth: 0,
+      marginTop:20,
+      marginBottom: 40,
+      backgroundColor: '#f8f3d6',
+  },
+  credits: {
+      enabled: false
+  },
+  legend: {
+      enabled: false
+  },
+  title: {
+      text: ''
+  },
+  subtitle: {
+      text: ''
+  },
+  xAxis: {
+      categories: ['1996', '1997', '1998', '1999', '2000', '2001','2002','2003','2004','2005','2006','2007','2008','2009','2010','2011', '2012', '2013', '2014', '2015', '2016', '2017']
+  },
+  yAxis: {
+      title: {
+          text: '出生人數'
+      }
+  },
+  tooltip: {
+  //borderColor: null
+      pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> 人<br/>',
+      shared: false,
+      backgroundColor: '#ffffff',
+      borderWidth: 0,
+      enabled:true
+  },
+  plotOptions: {
+      line: {
+          dataLabels: {
+              enabled: false,
+              color: '#1A1A1A',
+               style:{
+               fontSize: '9px',
+               textOutline: '0px'
+              }
+          },
+          enableMouseTracking: true
+      }
+  },
+  series: [{
+      name: '出生人數',
+      data: [325545, 326002, 271450, 283661, 305312, 260354, 247530, 227070, 216419, 205854, 204459, 204414, 198733,191310,166886,196627,229481,199113,210383,213598,208440],
+      color: '#C1272D'
+  }]
 }

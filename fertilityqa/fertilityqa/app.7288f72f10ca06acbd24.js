@@ -18594,7 +18594,7 @@ var Article = function () {
   function Article() {
     _classCallCheck(this, Article);
 
-    // this.hashArticles = new HashTable()
+    this.hashArticles = new _jshashtable2.default();
     this.hashSects = new _jshashtable2.default();
     this.init = this.init.bind(this);
     this.preCalc = this.preCalc.bind(this);
@@ -18615,18 +18615,24 @@ var Article = function () {
 
       document.querySelector('.exception').setAttribute('style', 'opacity: 1;');
       document.querySelector('.source-set').setAttribute('style', 'opacity: 1;');
-      Promise.all([this.preCalc(), this.renderHichart(), this.setScrollManager()]).then(function () {
+
+      Promise.all([this.renderHichart(), this.setScrollManager()]).then(function () {
         debug('INIT FUNISHED');
         _this7.d3 = new _d.FertilityD3();
         _this7.d3.init('#chart-d3-1');
+        _this7.preCalc();
       });
     }
   }, {
     key: 'renderHichart',
     value: function renderHichart() {
-      return Promise.all((0, _lodash.map)([(0, _comm.renderChart)(document.querySelector('.chart-container.a1m01 .hichart'), '1'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m08 .hichart'), 'm08'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m08-2 .hichart'), 'm08'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m18-2 .hichart'), '11'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m18-3 .hichart'), '11'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m14 .hichart'), 'm14'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3m15 .hichart'), 'm15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3m15-2 .hichart'), 'm15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3t12 .hichart'), 't12'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3t12-2 .hichart'), 't12'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m18 .hichart'), 'm18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m18-2 .hichart'), 'm18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m22 .hichart'), 'm22'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m25 .hichart'), 'm25'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m28 .hichart'), 'm28'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t15 .hichart'), 't15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t18 .hichart'), 't18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t20 .hichart'), 't20'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t20-2 .hichart'), 't20')], new Promise(function (resolve) {
-        return resolve();
-      })));
+      return Promise.all((0, _lodash.map)([(0, _comm.renderChart)(document.querySelector('.chart-container.a1m01 .hichart'), 'm01'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m08 .hichart'), 'm08'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m08-2 .hichart'), 'm08'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m18-2 .hichart'), 'm18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m18-3 .hichart'), 'm18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m14 .hichart'), 'm14'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3m15 .hichart'), 'm15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3m15-2 .hichart'), 'm15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3m15-3 .hichart'), 'm15'),
+      // renderChart(document.querySelector(`.chart-container.a3m15-4 .hichart`), 'm15'),
+      (0, _comm.renderChart)(document.querySelector('.chart-container.a3t12 .hichart'), 't12'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3t12-2 .hichart'), 't12'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m18 .hichart'), 'm18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m18-2 .hichart'), 'm18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m22 .hichart'), 'm22'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m25 .hichart'), 'm25'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m28 .hichart'), 'm28'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m26 .hichart'), 'm26'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m27 .hichart'), 'm27'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t15 .hichart'), 't15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t18 .hichart'), 't18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t20 .hichart'), 't20'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t20-2 .hichart'), 't20')], function () {
+        return new Promise(function (resolve) {
+          return resolve();
+        });
+      }));
     }
   }, {
     key: 'preCalc',
@@ -18642,6 +18648,7 @@ var Article = function () {
           (0, _lodash.map)(sects, function (sect, ind) {
             (0, _comm.addClass)(sect, 'article' + index + '-section' + ind);
           });
+          _this8.hashArticles.put(index, { index: index, article: article });
         });
 
         debug('Abt to write all section basic info to hash.');
@@ -18741,9 +18748,10 @@ var Article = function () {
       var currSect = (0, _lodash.find)(sects, function (sect) {
         return sect.top <= curr && sect.bottom >= curr;
       });
-      // currSect && debug('currSect.selector.indexOf', currSect.selector.indexOf('trigger-d3-auto'))
+      debug('this.triggered', this.triggered);
+      currSect && debug('currSect.selector.indexOf', currSect.selector.indexOf('trigger-d3-auto'));
 
-      if (this.triggered || currSect && currSect.selector.indexOf('trigger-d3-auto') === -1) {
+      if (this.triggered || !currSect || currSect && currSect.selector.indexOf('trigger-d3-auto') === -1) {
         return;
       }
       var i = 1;
@@ -18892,11 +18900,7 @@ var Article = function () {
           var lastChildTop = (0, _comm.elmYPosition)({ ele: lastChild });
           var lastChildBtm = lastChildTop + lastChild.clientHeight;
           var currSectBtm = (0, _comm.elmYPosition)({ ele: section }) + section.clientHeight;
-          // if (firstChildTop <= middle) {
-          //   destroyFixup(ratiowpr)
-          // } else if (lastChildBtm >= middle){
-          //   // goWithSibling(ratiowpr, currSectBtm - lastChildBtm)
-          // }
+
           if (ratiowpr && ratiowprTop <= middle && middle + ratiowpr.clientHeight <= lastChildBtm && firstChildTop <= middle) {
             fixup(ratiowpr);
           } else if (middle + ratiowpr.clientHeight >= lastChildBtm) {
@@ -18919,6 +18923,33 @@ var Article = function () {
       var currSect = (0, _lodash.find)(sects, function (sect) {
         return sect.top <= middle && sect.bottom >= middle;
       });
+      // let currSect = find(sects, (sect) => {
+      //   const sectTop = elmYPosition({ ele: sect.ele })
+      //   const sectBtm = sectTop + sect.ele.clientHeight
+      //   const chart = sect.ele.querySelector('.chart-container')
+      //   // chart && this.setChartFixed(chart)
+      //   debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.height} >>`, `${sect.ele.clientHeight}`)
+      //   debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.top} >>`, `${sectTop}`)
+      //   debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.bottom} >>`, `${sectBtm}`)
+      //   this.hashSects.put(sect.selector, {
+      //     ele: sect.ele,
+      //     height: sect.ele.clientHeight,
+      //     top: sectTop,
+      //     bottom: sectBtm,
+      //     selector: sect.selector,
+      //     chart
+      //   })
+      //   return sectTop <= middle && sectBtm >= middle
+      // })
+      var nodeParent = currSect ? (0, _comm.isDescendant)(currSect.ele, { classname: 'articlewpr' }) : null;
+      var nodeParentInd = (0, _lodash.get)((0, _lodash.find)(this.hashArticles.values(), function (a) {
+        return a.article === nodeParent;
+      }), ['index']);
+      var makers = document.querySelectorAll('.markerwpr .marker--btn');
+      var lastArticle = makers[this.currentArticle];
+      this.currentArticle !== nodeParentInd && lastArticle && (0, _comm.removeClass)(makers[this.currentArticle], 'current');
+      nodeParentInd && (0, _comm.addClass)(makers[nodeParentInd], 'current');
+      this.currentArticle = nodeParentInd;
 
       var fadein = function fadein() {
         currSect.ele && (0, _comm.addClass)(currSect.ele, 'fadein');
@@ -19036,6 +19067,7 @@ var ArticleMobile = function (_Article) {
           (0, _lodash.map)(sects, function (sect, ind) {
             (0, _comm.addClass)(sect, 'article' + index + '-section' + ind);
           });
+          _this15.hashArticles.put(index, { index: index, article: article });
         });
 
         debugRaw('FERTILITY:MOBILE:PreCalc')('Abt to write all section basic info to hash.');
@@ -19086,6 +19118,17 @@ var ArticleMobile = function (_Article) {
       var fadein = function fadein() {
         currSect.ele && (0, _comm.addClass)(currSect.ele, 'fadein');
       };
+      var nodeParent = currSect ? (0, _comm.isDescendant)(currSect.ele, { classname: 'articlewpr' }) : null;
+      var nodeParentInd = (0, _lodash.get)((0, _lodash.find)(this.hashArticles.values(), function (a) {
+        return a.article === nodeParent;
+      }), ['index']);
+      var makers = document.querySelectorAll('.markerwpr .marker--btn');
+      var lastArticle = makers[this.currentArticle];
+      this.currentArticle !== nodeParentInd && lastArticle && (0, _comm.removeClass)(makers[this.currentArticle], 'current');
+      nodeParentInd && (0, _comm.addClass)(makers[nodeParentInd], 'current');
+      debugMobile('nodeParent', nodeParent);
+      debugMobile('nodeParentInd', nodeParentInd);
+      this.currentArticle = nodeParentInd;
       if (currSect && lastSect !== currSect.ele) {
         fadein();
         lastSect && (0, _comm.removeClass)(lastSect, 'fadein');
@@ -19138,7 +19181,8 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   window.addEventListener('resize', function () {
     // fertility.destroy()
-    location.reload();
+    // location.reload()
+    fertility.preCalc();
   });
 });
 
@@ -20075,6 +20119,7 @@ exports.getClientOS = getClientOS;
 exports.renderChart = renderChart;
 exports.elmYPosition = elmYPosition;
 exports.getPosition = getPosition;
+exports.isDescendant = isDescendant;
 
 var _hichart = __webpack_require__(60);
 
@@ -20216,6 +20261,9 @@ function renderChart(ele, targKey) {
     case 'm15':
       configKey = 'M15_REAL';
       break;
+    case 'm01':
+      configKey = 'M01_REAL';
+      break;
   }
   debug('targKey', targKey, typeof targKey === 'undefined' ? 'undefined' : _typeof(targKey), ele);
   debug('configKey', configKey);
@@ -20255,6 +20303,20 @@ function getPosition(element) {
     element = element.offsetParent;
   }
   return { x: x, y: y };
+}
+
+function isDescendant(child, _ref2) {
+  var _ref2$classname = _ref2.classname,
+      classname = _ref2$classname === undefined ? 'none' : _ref2$classname;
+
+  var node = child.parentNode;
+  while (node !== null && node !== undefined) {
+    if (node.className && node.className.indexOf(classname) > -1) {
+      return node;
+    }
+    node = node.parentNode;
+  }
+  return false;
 }
 
 /***/ }),
@@ -20554,6 +20616,7 @@ var M14_REAL = exports.M14_REAL = {
             }
         }
     }, { // Secondary yAxis
+        max: 100,
         title: {
             text: '使用率（%）',
             style: {
@@ -20568,6 +20631,7 @@ var M14_REAL = exports.M14_REAL = {
         },
         opposite: true
     }],
+    exporting: { enabled: false },
     tooltip: {
         enabled: false
     },
@@ -20576,6 +20640,15 @@ var M14_REAL = exports.M14_REAL = {
             pointPadding: 0.1,
             borderWidth: 0,
             dataLabels: {
+                formatter: function formatter() {
+                    var text = '';
+                    if (this.series.name == '使用率') {
+                        text = this.y + '%';
+                    } else {
+                        text = this.y;
+                    }
+                    return text;
+                },
                 enabled: true,
                 color: '#1A1A1A',
                 style: {
@@ -20803,14 +20876,19 @@ var T12 = exports.T12 = {
         type: 'column',
         borderWidth: 0,
         marginTop: 20,
-        marginBottom: 40,
+        marginBottom: 60,
         backgroundColor: '#f8f3d6'
     },
     credits: {
         enabled: false
     },
     legend: {
-        enabled: false
+        enabled: true,
+        align: 'right',
+        verticalAlign: 'bottom',
+
+        x: 0,
+        y: 10
     },
     title: {
         text: ''
@@ -20824,7 +20902,7 @@ var T12 = exports.T12 = {
     },
     yAxis: {
         min: 0,
-        max: 110,
+        max: 100,
         gridLineColor: '#e6e6e6',
         gridLineWidth: 1,
         title: {
@@ -20869,20 +20947,25 @@ var M22 = exports.M22 = {
         type: 'column',
         borderWidth: 0,
         marginTop: 20,
-        marginBottom: 40,
+        marginBottom: 80,
         backgroundColor: '#f8f3d6'
     },
     credits: {
         enabled: false
     },
     legend: {
-        enabled: false
+        enabled: true,
+        align: 'right',
+        verticalAlign: 'bottom',
+
+        x: 0,
+        y: 5
     },
     title: {
         text: ''
     },
     xAxis: {
-        categories: ['女性', '育有 2 歲以下兒童 OECD 平均工時', '育有 2 歲以下兒童 歐盟平均工時', '育有 3-5 歲兒童 OECD 平均工時', '育有 3-5 歲兒童 歐盟平均工時']
+        categories: ['台灣有 6 歲以下小孩女性', '育有 2 歲以下兒童 OECD 平均工時', '育有 2 歲以下兒童 歐盟平均工時', '育有 3-5 歲兒童 OECD 平均工時', '育有 3-5 歲兒童 歐盟平均工時']
     },
     yAxis: {
         min: 0,
@@ -20894,11 +20977,11 @@ var M22 = exports.M22 = {
     },
     tooltip: {
         //borderColor: null
-        pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+        pointFormat: '<span style="color:{series.color}">{series.name}</span>: {point.percentage:0.1f}%<br/>',
         shared: false,
         backgroundColor: '#ffffff',
         borderWidth: 0,
-        enabled: false
+        enabled: true
     },
     plotOptions: {
         column: {
@@ -20917,19 +21000,19 @@ var M22 = exports.M22 = {
         }
     },
     series: [{
-        name: '1-29',
+        name: '1-29 小時',
         data: [3.39, 24.52, 20.96, 25.27, 22.31],
         color: '#0083C8'
     }, {
-        name: '30-39',
+        name: '30-39 小時',
         data: [3.95, 26.01, 25.20, 25.95, 25.48],
         color: '#BA8A00'
     }, {
-        name: '40-44',
+        name: '40-44 小時',
         data: [68.15, 38.31, 45.62, 38.43, 44.97],
         color: '#C1272D'
     }, {
-        name: '45小時以上',
+        name: '45 小時以上',
         data: [24.51, 8.77, 5.72, 9.61, 6.50],
         color: '#808080'
     }, {
@@ -21055,7 +21138,132 @@ var M28 = exports.M28 = {
         }]
     }]
 };
-var M26 = exports.M26 = {};
+var M26 = exports.M26 = {
+    chart: {
+        type: 'bar',
+        borderWidth: 0,
+        marginTop: 20,
+        marginBottom: 40,
+        backgroundColor: '#f8f3d6'
+    },
+    credits: {
+        enabled: false
+    },
+    legend: {
+        enabled: false
+    },
+    title: {
+        text: ''
+    },
+    subtitle: {
+        text: ''
+    },
+    xAxis: {
+        categories: ['自己照顧<br/>一方未就業，領未就業育兒津貼', '自己照顧<br>領育兒留職停薪津貼', '親屬照顧', '褓母照顧', '公私協力托嬰中心', '私立托嬰中心'],
+        title: {
+            text: null
+        }
+    },
+    yAxis: {
+        min: 0,
+        gridLineColor: '#e6e6e6',
+        gridLineWidth: 1,
+        title: {
+            text: '',
+            align: 'high'
+        },
+        labels: {
+            overflow: 'justify'
+        }
+    },
+    tooltip: {
+        valueSuffix: '%',
+        enabled: false
+    },
+    plotOptions: {
+        bar: {
+            pointPadding: 0.1,
+            borderWidth: 0,
+            dataLabels: {
+                format: '{point.y:.1f}%',
+                enabled: true,
+                color: '#1A1A1A',
+                style: {
+                    fontSize: '16px',
+                    textOutline: '0px'
+                }
+            }
+        }
+    },
+    series: [{
+        name: '比例',
+        data: [41.86, 8.81, 25.11, 9.88, 0.76, 2.52],
+        color: '#C1272D'
+    }]
+};
+var M27 = exports.M27 = {
+    chart: {
+        type: 'bar',
+        borderWidth: 0,
+        marginTop: 20,
+        marginBottom: 40,
+        backgroundColor: '#f8f3d6'
+    },
+    credits: {
+        enabled: false
+    },
+    legend: {
+        enabled: false
+    },
+    title: {
+        text: ''
+    },
+    subtitle: {
+        text: ''
+    },
+    xAxis: {
+        categories: ['員工人數少，無法提供', '公司為家族企業可自行放假休息', '業務繁忙無法提供', '員工可用其他假別替代', '懷孕婦女自行離職', '不知道有此規定', '其他'],
+        title: {
+            text: null
+        }
+    },
+    yAxis: {
+        min: 0,
+        gridLineColor: '#e6e6e6',
+        gridLineWidth: 1,
+        title: {
+            text: '',
+            align: 'high'
+        },
+        labels: {
+            overflow: 'justify'
+        }
+    },
+    tooltip: {
+        valueSuffix: '%',
+        enabled: false
+    },
+    plotOptions: {
+        bar: {
+            pointPadding: 0.1,
+            borderWidth: 0,
+            dataLabels: {
+                format: '{point.y:.1f}%',
+                enabled: true,
+                color: '#1A1A1A',
+                style: {
+                    fontSize: '16px',
+                    textOutline: '0px'
+                }
+            }
+        }
+    },
+    series: [{
+        name: '比例',
+        data: [56.5, 13.5, 11.4, 11, 5.1, 1.3, 1.3],
+        color: '#C1272D'
+    }]
+};
 var T15 = exports.T15 = {
     chart: {
         type: 'bar',
@@ -21447,6 +21655,61 @@ var M15_REAL = exports.M15_REAL = {
         name: '生育率高於 1.5',
         marker: { radius: 3, fillColor: '#C1272D', symbol: 'circle' },
         data: [{ x: 1.7, y: 67.1, name: "丹麥" }, { x: 1.9, y: 58.6, name: "冰島" }, { x: 1.8, y: 54.8, name: "挪威" }, { x: 1.7, y: 54.6, name: "荷蘭" }, { x: 1.6, y: 53.6, name: "盧森堡" }, { x: 2, y: 50.6, name: "法國" }, { x: 1.7, y: 47.8, name: "比利時" }, { x: 1.9, y: 47.6, name: "瑞典" }, { x: 1.6, y: 41.6, name: "斯洛維尼亞" }, { x: 2, y: 40.9, name: "紐西蘭" }, { x: 1.8, y: 34.4, name: "英國" }, { x: 1.7, y: 33.8, name: "OECD平均" }, { x: 2, y: 32.9, name: "愛爾蘭" }, { x: 1.8, y: 28.2, name: "芬蘭" }, { x: 1.8, y: 18.4, name: "智利" }]
+    }]
+};
+var M01_REAL = exports.M01_REAL = {
+    chart: {
+        type: 'line',
+        borderWidth: 0,
+        marginTop: 20,
+        marginBottom: 40,
+        backgroundColor: '#f8f3d6'
+    },
+    credits: {
+        enabled: false
+    },
+    legend: {
+        enabled: false
+    },
+    title: {
+        text: ''
+    },
+    subtitle: {
+        text: ''
+    },
+    xAxis: {
+        categories: ['1996', '1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017']
+    },
+    yAxis: {
+        title: {
+            text: '出生人數'
+        }
+    },
+    tooltip: {
+        //borderColor: null
+        pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> 人<br/>',
+        shared: false,
+        backgroundColor: '#ffffff',
+        borderWidth: 0,
+        enabled: true
+    },
+    plotOptions: {
+        line: {
+            dataLabels: {
+                enabled: false,
+                color: '#1A1A1A',
+                style: {
+                    fontSize: '9px',
+                    textOutline: '0px'
+                }
+            },
+            enableMouseTracking: true
+        }
+    },
+    series: [{
+        name: '出生人數',
+        data: [325545, 326002, 271450, 283661, 305312, 260354, 247530, 227070, 216419, 205854, 204459, 204414, 198733, 191310, 166886, 196627, 229481, 199113, 210383, 213598, 208440],
+        color: '#C1272D'
     }]
 };
 

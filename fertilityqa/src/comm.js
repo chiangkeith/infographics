@@ -133,6 +133,9 @@ export function renderChart (ele, targKey) {
     case 'm15':
       configKey = 'M15_REAL'
       break
+    case 'm01':
+      configKey = 'M01_REAL'
+      break
   }
   debug('targKey', targKey, typeof(targKey), ele)
   debug('configKey', configKey)
@@ -166,4 +169,15 @@ export function getPosition (element) {
     element = element.offsetParent;
   }
   return { x: x, y: y };
+}
+
+export function isDescendant (child, { classname = 'none' }) {
+  let node = child.parentNode
+  while (node !== null && node !== undefined) {
+    if (node.className && node.className.indexOf(classname) > -1) {
+      return node
+    }
+    node = node.parentNode
+  }
+  return false
 }
