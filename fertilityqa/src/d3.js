@@ -38,7 +38,7 @@ export class FertilityD3 {
 
       svg.append('g')
         .classed('chart', true)
-        .attr('transform', 'translate(80, -60)')
+        .attr('transform', 'translate(80, 0)')
 
       d3.select(`${this.eleSelector} svg g.chart`)
       .append('line')

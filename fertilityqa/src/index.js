@@ -153,6 +153,7 @@ class Article {
     this.scrollHandlerForLongFix = this.scrollHandlerForLongFix.bind(this)
     this.setScrollManager = this.setScrollManager.bind(this)
     this.resetScrollManager = this.resetScrollManager.bind(this)
+    this.scrollHandlerTriggerD3Auto = this.scrollHandlerTriggerD3Auto.bind(this)
   }
   init () {
     debug('INIT ARTICLE')
@@ -174,17 +175,23 @@ class Article {
       map([
         renderChart(document.querySelector(`.chart-container.a1m01 .hichart`), '1'),
         renderChart(document.querySelector(`.chart-container.a2m08 .hichart`), 'm08'),
+        renderChart(document.querySelector(`.chart-container.a2m08-2 .hichart`), 'm08'),
         renderChart(document.querySelector(`.chart-container.a2m18-2 .hichart`), '11'),
+        renderChart(document.querySelector(`.chart-container.a2m18-3 .hichart`), '11'),
         renderChart(document.querySelector(`.chart-container.a2m14 .hichart`), 'm14'),
         renderChart(document.querySelector(`.chart-container.a3m15 .hichart`), 'm15'),
+        renderChart(document.querySelector(`.chart-container.a3m15-2 .hichart`), 'm15'),
         renderChart(document.querySelector(`.chart-container.a3t12 .hichart`), 't12'),
+        renderChart(document.querySelector(`.chart-container.a3t12-2 .hichart`), 't12'),
         renderChart(document.querySelector(`.chart-container.a4m18 .hichart`), 'm18'),
+        renderChart(document.querySelector(`.chart-container.a4m18-2 .hichart`), 'm18'),
         renderChart(document.querySelector(`.chart-container.a4m22 .hichart`), 'm22'),
         renderChart(document.querySelector(`.chart-container.a4m25 .hichart`), 'm25'),
         renderChart(document.querySelector(`.chart-container.a4m28 .hichart`), 'm28'),
         renderChart(document.querySelector(`.chart-container.a4t15 .hichart`), 't15'),
         renderChart(document.querySelector(`.chart-container.a4t18 .hichart`), 't18'),
         renderChart(document.querySelector(`.chart-container.a4t20 .hichart`), 't20'),
+        renderChart(document.querySelector(`.chart-container.a4t20-2 .hichart`), 't20'),
       ], new Promise(resolve => resolve()))
     )
   }
@@ -281,8 +288,48 @@ class Article {
       resolve()
     })
   }
+  scrollHandlerTriggerD3Auto () {
+    const sects = this.hashSects.values()
+    const curr = currentYPosition()
+    const currSect = find(sects, (sect) => (sect.top <= curr && sect.bottom >= curr))
+    // currSect && debug('currSect.selector.indexOf', currSect.selector.indexOf('trigger-d3-auto'))
+
+    if (this.triggered || (currSect && currSect.selector.indexOf('trigger-d3-auto') === -1)) { return }
+    let i = 1
+    const playD3 = setInterval(() => {
+      let year
+      switch (i) {
+        case 0:
+          year = '1980'
+          break
+        case 1:
+          year = '1986'
+          break
+        case 2:
+          year = '1992'
+          break
+        case 3:
+          year = '1998'
+          break
+        case 4:
+          year = '2004'
+          break
+        case 5:
+          year = '2010'
+          break
+        case 6:
+          year = '2016'
+      }
+      debug('play d3:', year)
+      this.d3.update(year)
+      i++
+      if (i > 6) {
+        window.clearInterval(playD3)
+      }
+    }, 1500)
+    this.triggered = true
+  }
   scrollHandlerForLongFix () {
-    const deviceHeight = verge.viewportH()
     const sects = this.hashSects.values()
     const curr = currentYPosition()
     const currSect = find(sects, (sect) => (sect.top <= curr && sect.bottom >= curr))
@@ -300,10 +347,10 @@ class Article {
     }
   }
   scrollHandlerForFix (event) {
-    const deviceHeight = verge.viewportH()
     const sects = this.hashSects.values()
     const curr = currentYPosition()
-    const currSect = find(sects, (sect) => (sect.top <= curr && sect.bottom >= curr))
+    const middle = curr + deviceHeight / 3
+    let currSect = find(sects, (sect) => (sect.top <= middle && sect.bottom >= middle))
 
     const fixup = (container) => new Promise((resolve) => {
       container.removeAttribute('style')
@@ -311,7 +358,8 @@ class Article {
       const chartContainerHeight = container.clientHeight
       const width = `width: ${chartContainerWidth}px;`
       const height = `height: ${chartContainerHeight}px;`
-      container.setAttribute('style', `position: fixed; top: 0;${width}${height}`)
+      const top = `top: ${deviceHeight / 3}px;`
+      container.setAttribute('style', `position: fixed; ${top}${width}${height}`)
       resolve()
     })
     const destroyFixup = (container) => new Promise((resolve) => {
@@ -325,6 +373,15 @@ class Article {
       const width = `width: ${chartContainerWidth}px;`
       const height = `height: ${chartContainerHeight}px;`
       container.setAttribute('style', `position: absolute; bottom: 0;${width}${height}`)
+      resolve()
+    })
+    const goWithSibling = (container, marginBtm) => new Promise((resolve) => {
+      container.removeAttribute('style')
+      const chartContainerWidth = container.clientWidth
+      const chartContainerHeight = container.clientHeight
+      const width = `width: ${chartContainerWidth}px;`
+      const height = `height: ${chartContainerHeight}px;`
+      container.setAttribute('style', `position: absolute; bottom: ${marginBtm}px;${width}${height}`)
       resolve()
     })
     if (currSect && currSect.ele.className && currSect.ele.className.indexOf('fix') > -1) {
@@ -343,14 +400,12 @@ class Article {
       const currSectBtm = elmYPosition({ ele: currSect.ele }) + currSect.ele.clientHeight
       debug('currSectBtm', currSectBtm)
       debug('ratiowprTop', ratiowprTop)
-      debug('ratiowprTop + ratiowpr.clientHeight', ratiowprTop + ratiowpr.clientHeight)
-      if (ratiowpr 
-                && firstChildTop <= curr 
-                && ratiowpr.clientHeight <= currSectBtm - curr) {
+      debug('lastChildBtm', lastChildBtm)
+      debug('ratiowprTop + ratiowpr.clientHeight', ratiowprTop + ratiowpr.clientHeight, middle)
+      if (ratiowpr && ratiowprTop <= middle && middle + ratiowpr.clientHeight <= lastChildBtm && firstChildTop <= middle) {
         fixup(ratiowpr)
-      }
-      else if (ratiowpr.clientHeight >= currSectBtm - curr) {
-        goWithParent(ratiowpr)
+      } else if (middle + ratiowpr.clientHeight >= lastChildBtm) {
+        goWithSibling(ratiowpr, currSectBtm - lastChildBtm)
       } else {
         destroyFixup(ratiowpr)
       }
@@ -358,7 +413,26 @@ class Article {
       const fixSection = [...document.querySelectorAll('section.fix')]
       map(fixSection, (section) => {
         const ratiowpr = section.querySelector('.chart-container .ratiowpr > div')
-        destroyFixup(ratiowpr)
+        const ratiowprTop = elmYPosition({ ele: ratiowpr })
+        const textContainer = section.querySelector('.text-container')
+        const lastChild = textContainer.lastElementChild
+        const firstChild = textContainer.firstElementChild
+        const firstChildTop = elmYPosition({ ele: firstChild })
+        const lastChildTop = elmYPosition({ ele: lastChild })
+        const lastChildBtm = lastChildTop + lastChild.clientHeight
+        const currSectBtm = elmYPosition({ ele: section }) + section.clientHeight
+        // if (firstChildTop <= middle) {
+        //   destroyFixup(ratiowpr)
+        // } else if (lastChildBtm >= middle){
+        //   // goWithSibling(ratiowpr, currSectBtm - lastChildBtm)
+        // }
+        if (ratiowpr && ratiowprTop <= middle && middle + ratiowpr.clientHeight <= lastChildBtm && firstChildTop <= middle) {
+          fixup(ratiowpr)
+        } else if (middle + ratiowpr.clientHeight >= lastChildBtm) {
+          goWithSibling(ratiowpr, currSectBtm - lastChildBtm)
+        } else {
+          destroyFixup(ratiowpr)
+        }
       })
     }
   }
@@ -410,6 +484,7 @@ class Article {
       window.addEventListener('scroll', this.scrollHandler)
       window.addEventListener('scroll', this.scrollHandlerForFix)
       window.addEventListener('scroll', this.scrollHandlerForLongFix)
+      window.addEventListener('scroll', this.scrollHandlerTriggerD3Auto)
       resolve()
     })
   }
@@ -419,6 +494,7 @@ class Article {
         window.removeEventListener('scroll', this.scrollHandler)
         window.removeEventListener('scroll', this.scrollHandlerForFix)
         window.removeEventListener('scroll', this.scrollHandlerForLongFix)
+        window.removeEventListener('scroll', this.scrollHandlerTriggerD3Auto)
         resolve()
       }),
       this.setScrollManager()

@@ -137,7 +137,7 @@ export function renderChart (ele, targKey) {
   debug('targKey', targKey, typeof(targKey), ele)
   debug('configKey', configKey)
   if (!configKey) { return }
-  Highcharts.chart(ele, config[ configKey ])
+  Highcharts.chart(ele, Object.assign({}, {exporting: { enabled: false }}, config[ configKey ]))
 }
 
 export function elmYPosition({ ele, eID, errHandler }) {

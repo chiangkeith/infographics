@@ -18603,6 +18603,7 @@ var Article = function () {
     this.scrollHandlerForLongFix = this.scrollHandlerForLongFix.bind(this);
     this.setScrollManager = this.setScrollManager.bind(this);
     this.resetScrollManager = this.resetScrollManager.bind(this);
+    this.scrollHandlerTriggerD3Auto = this.scrollHandlerTriggerD3Auto.bind(this);
   }
 
   _createClass(Article, [{
@@ -18623,7 +18624,7 @@ var Article = function () {
   }, {
     key: 'renderHichart',
     value: function renderHichart() {
-      return Promise.all((0, _lodash.map)([(0, _comm.renderChart)(document.querySelector('.chart-container.a1m01 .hichart'), '1'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m08 .hichart'), 'm08'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m18-2 .hichart'), '11'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m14 .hichart'), 'm14'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3m15 .hichart'), 'm15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3t12 .hichart'), 't12'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m18 .hichart'), 'm18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m22 .hichart'), 'm22'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m25 .hichart'), 'm25'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m28 .hichart'), 'm28'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t15 .hichart'), 't15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t18 .hichart'), 't18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t20 .hichart'), 't20')], new Promise(function (resolve) {
+      return Promise.all((0, _lodash.map)([(0, _comm.renderChart)(document.querySelector('.chart-container.a1m01 .hichart'), '1'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m08 .hichart'), 'm08'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m08-2 .hichart'), 'm08'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m18-2 .hichart'), '11'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m18-3 .hichart'), '11'), (0, _comm.renderChart)(document.querySelector('.chart-container.a2m14 .hichart'), 'm14'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3m15 .hichart'), 'm15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3m15-2 .hichart'), 'm15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3t12 .hichart'), 't12'), (0, _comm.renderChart)(document.querySelector('.chart-container.a3t12-2 .hichart'), 't12'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m18 .hichart'), 'm18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m18-2 .hichart'), 'm18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m22 .hichart'), 'm22'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m25 .hichart'), 'm25'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4m28 .hichart'), 'm28'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t15 .hichart'), 't15'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t18 .hichart'), 't18'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t20 .hichart'), 't20'), (0, _comm.renderChart)(document.querySelector('.chart-container.a4t20-2 .hichart'), 't20')], new Promise(function (resolve) {
         return resolve();
       })));
     }
@@ -18731,9 +18732,57 @@ var Article = function () {
       });
     }
   }, {
+    key: 'scrollHandlerTriggerD3Auto',
+    value: function scrollHandlerTriggerD3Auto() {
+      var _this9 = this;
+
+      var sects = this.hashSects.values();
+      var curr = (0, _kcScroll.currentYPosition)();
+      var currSect = (0, _lodash.find)(sects, function (sect) {
+        return sect.top <= curr && sect.bottom >= curr;
+      });
+      // currSect && debug('currSect.selector.indexOf', currSect.selector.indexOf('trigger-d3-auto'))
+
+      if (this.triggered || currSect && currSect.selector.indexOf('trigger-d3-auto') === -1) {
+        return;
+      }
+      var i = 1;
+      var playD3 = setInterval(function () {
+        var year = void 0;
+        switch (i) {
+          case 0:
+            year = '1980';
+            break;
+          case 1:
+            year = '1986';
+            break;
+          case 2:
+            year = '1992';
+            break;
+          case 3:
+            year = '1998';
+            break;
+          case 4:
+            year = '2004';
+            break;
+          case 5:
+            year = '2010';
+            break;
+          case 6:
+            year = '2016';
+        }
+        debug('play d3:', year);
+        _this9.d3.update(year);
+        i++;
+        if (i > 6) {
+          window.clearInterval(playD3);
+        }
+      }, 1500);
+      this.triggered = true;
+    }
+  }, {
     key: 'scrollHandlerForLongFix',
     value: function scrollHandlerForLongFix() {
-      var deviceHeight = _verge2.default.viewportH();
       var sects = this.hashSects.values();
       var curr = (0, _kcScroll.currentYPosition)();
       var currSect = (0, _lodash.find)(sects, function (sect) {
@@ -18759,11 +18808,11 @@ var Article = function () {
   }, {
     key: 'scrollHandlerForFix',
     value: function scrollHandlerForFix(event) {
-      var deviceHeight = _verge2.default.viewportH();
       var sects = this.hashSects.values();
       var curr = (0, _kcScroll.currentYPosition)();
+      var middle = curr + deviceHeight / 3;
       var currSect = (0, _lodash.find)(sects, function (sect) {
-        return sect.top <= curr && sect.bottom >= curr;
+        return sect.top <= middle && sect.bottom >= middle;
       });
 
       var fixup = function fixup(container) {
@@ -18773,7 +18822,8 @@ var Article = function () {
           var chartContainerHeight = container.clientHeight;
           var width = 'width: ' + chartContainerWidth + 'px;';
           var height = 'height: ' + chartContainerHeight + 'px;';
-          container.setAttribute('style', 'position: fixed; top: 0;' + width + height);
+          var top = 'top: ' + deviceHeight / 3 + 'px;';
+          container.setAttribute('style', 'position: fixed; ' + top + width + height);
           resolve();
         });
       };
@@ -18794,6 +18844,17 @@ var Article = function () {
           resolve();
         });
       };
+      var goWithSibling = function goWithSibling(container, marginBtm) {
+        return new Promise(function (resolve) {
+          container.removeAttribute('style');
+          var chartContainerWidth = container.clientWidth;
+          var chartContainerHeight = container.clientHeight;
+          var width = 'width: ' + chartContainerWidth + 'px;';
+          var height = 'height: ' + chartContainerHeight + 'px;';
+          container.setAttribute('style', 'position: absolute; bottom: ' + marginBtm + 'px;' + width + height);
+          resolve();
+        });
+      };
       if (currSect && currSect.ele.className && currSect.ele.className.indexOf('fix') > -1) {
         var sectHeight = currSect.ele.clientWidth;
         currSect.ele.setAttribute('style', 'height: ' + sectHeight + 'px;');
@@ -18810,11 +18871,12 @@ var Article = function () {
         var currSectBtm = (0, _comm.elmYPosition)({ ele: currSect.ele }) + currSect.ele.clientHeight;
         debug('currSectBtm', currSectBtm);
         debug('ratiowprTop', ratiowprTop);
-        debug('ratiowprTop + ratiowpr.clientHeight', ratiowprTop + ratiowpr.clientHeight);
-        if (ratiowpr && firstChildTop <= curr && ratiowpr.clientHeight <= currSectBtm - curr) {
+        debug('lastChildBtm', lastChildBtm);
+        debug('ratiowprTop + ratiowpr.clientHeight', ratiowprTop + ratiowpr.clientHeight, middle);
+        if (ratiowpr && ratiowprTop <= middle && middle + ratiowpr.clientHeight <= lastChildBtm && firstChildTop <= middle) {
           fixup(ratiowpr);
-        } else if (ratiowpr.clientHeight >= currSectBtm - curr) {
-          goWithParent(ratiowpr);
+        } else if (middle + ratiowpr.clientHeight >= lastChildBtm) {
+          goWithSibling(ratiowpr, currSectBtm - lastChildBtm);
         } else {
           destroyFixup(ratiowpr);
         }
@@ -18822,14 +18884,33 @@ var Article = function () {
         var fixSection = [].concat(_toConsumableArray(document.querySelectorAll('section.fix')));
         (0, _lodash.map)(fixSection, function (section) {
           var ratiowpr = section.querySelector('.chart-container .ratiowpr > div');
-          destroyFixup(ratiowpr);
+          var ratiowprTop = (0, _comm.elmYPosition)({ ele: ratiowpr });
+          var textContainer = section.querySelector('.text-container');
+          var lastChild = textContainer.lastElementChild;
+          var firstChild = textContainer.firstElementChild;
+          var firstChildTop = (0, _comm.elmYPosition)({ ele: firstChild });
+          var lastChildTop = (0, _comm.elmYPosition)({ ele: lastChild });
+          var lastChildBtm = lastChildTop + lastChild.clientHeight;
+          var currSectBtm = (0, _comm.elmYPosition)({ ele: section }) + section.clientHeight;
+          // if (firstChildTop <= middle) {
+          //   destroyFixup(ratiowpr)
+          // } else if (lastChildBtm >= middle){
+          //   // goWithSibling(ratiowpr, currSectBtm - lastChildBtm)
+          // }
+          if (ratiowpr && ratiowprTop <= middle && middle + ratiowpr.clientHeight <= lastChildBtm && firstChildTop <= middle) {
+            fixup(ratiowpr);
+          } else if (middle + ratiowpr.clientHeight >= lastChildBtm) {
+            goWithSibling(ratiowpr, currSectBtm - lastChildBtm);
+          } else {
+            destroyFixup(ratiowpr);
+          }
         });
       }
     }
   }, {
     key: 'scrollHandler',
     value: function scrollHandler(event) {
-      var _this9 = this;
+      var _this10 = this;
 
       var curr = (0, _kcScroll.currentYPosition)();
       var middle = curr + deviceHeight / 2;
@@ -18842,7 +18923,7 @@ var Article = function () {
       var fadein = function fadein() {
         currSect.ele && (0, _comm.addClass)(currSect.ele, 'fadein');
         var line = currSect.ele.querySelector('.ratiowpr__chart__img.line');
-        line && _this9.setCoverout(line);
+        line && _this10.setCoverout(line);
       };
       if (currSect && lastSect !== currSect.ele) {
         if (currSect && currSect.chart) {
@@ -18880,24 +18961,26 @@ var Article = function () {
   }, {
     key: 'setScrollManager',
     value: function setScrollManager() {
-      var _this10 = this;
+      var _this11 = this;
 
       return new Promise(function (resolve) {
-        window.addEventListener('scroll', _this10.scrollHandler);
-        window.addEventListener('scroll', _this10.scrollHandlerForFix);
-        window.addEventListener('scroll', _this10.scrollHandlerForLongFix);
+        window.addEventListener('scroll', _this11.scrollHandler);
+        window.addEventListener('scroll', _this11.scrollHandlerForFix);
+        window.addEventListener('scroll', _this11.scrollHandlerForLongFix);
+        window.addEventListener('scroll', _this11.scrollHandlerTriggerD3Auto);
         resolve();
       });
     }
   }, {
     key: 'resetScrollManager',
     value: function resetScrollManager() {
-      var _this11 = this;
+      var _this12 = this;
 
       return Promise.all([new Promise(function (resolve) {
-        window.removeEventListener('scroll', _this11.scrollHandler);
-        window.removeEventListener('scroll', _this11.scrollHandlerForFix);
-        window.removeEventListener('scroll', _this11.scrollHandlerForLongFix);
+        window.removeEventListener('scroll', _this12.scrollHandler);
+        window.removeEventListener('scroll', _this12.scrollHandlerForFix);
+        window.removeEventListener('scroll', _this12.scrollHandlerForLongFix);
+        window.removeEventListener('scroll', _this12.scrollHandlerTriggerD3Auto);
         resolve();
       }), this.setScrollManager()]);
     }
@@ -18920,29 +19003,29 @@ var ArticleMobile = function (_Article) {
   function ArticleMobile() {
     _classCallCheck(this, ArticleMobile);
 
-    var _this12 = _possibleConstructorReturn(this, (ArticleMobile.__proto__ || Object.getPrototypeOf(ArticleMobile)).call(this));
+    var _this13 = _possibleConstructorReturn(this, (ArticleMobile.__proto__ || Object.getPrototypeOf(ArticleMobile)).call(this));
 
-    _this12.setupScrollManager = _this12.setupScrollManager.bind(_this12);
-    _this12.triggerAnimation = _this12.triggerAnimation.bind(_this12);
-    return _this12;
+    _this13.setupScrollManager = _this13.setupScrollManager.bind(_this13);
+    _this13.triggerAnimation = _this13.triggerAnimation.bind(_this13);
+    return _this13;
   }
 
   _createClass(ArticleMobile, [{
     key: 'init',
     value: function init() {
-      var _this13 = this;
+      var _this14 = this;
 
       Promise.all([this.preCalc(), this.renderHichart(), this.setupScrollManager()]).then(function () {
-        _this13.d3 = new _d.FertilityD3();
-        _this13.d3.init('#chart-d3-1');
-        _this13.d35 = new _d.FertilityD3();
-        _this13.d35.init('#chart-d3-5', '2016');
+        _this14.d3 = new _d.FertilityD3();
+        _this14.d3.init('#chart-d3-1');
+        _this14.d35 = new _d.FertilityD3();
+        _this14.d35.init('#chart-d3-5', '2016');
       });
     }
   }, {
     key: 'preCalc',
     value: function preCalc() {
-      var _this14 = this;
+      var _this15 = this;
 
       return new Promise(function (resolve) {
         var domSects = [].concat(_toConsumableArray(document.querySelectorAll('section')));
@@ -18964,7 +19047,7 @@ var ArticleMobile = function (_Article) {
           var height = sect.clientHeight;
           var top = (0, _comm.elmYPosition)({ ele: sect });
           var selector = '.' + className.split(' ').join('.');
-          _this14.hashSects.put('' + selector, {
+          _this15.hashSects.put('' + selector, {
             ele: sect,
             height: height,
             top: top,
@@ -18972,14 +19055,14 @@ var ArticleMobile = function (_Article) {
             selector: selector
           });
         });
-        debugRaw('FERTILITY:MOBILE:PreCalc')(_this14.hashSects.values());
+        debugRaw('FERTILITY:MOBILE:PreCalc')(_this15.hashSects.values());
         resolve();
       });
     }
   }, {
     key: 'triggerAnimation',
     value: function triggerAnimation() {
-      var _this15 = this;
+      var _this16 = this;
 
       var curr = (0, _kcScroll.currentYPosition)();
       var base = curr + deviceHeight / 3;
@@ -18991,7 +19074,7 @@ var ArticleMobile = function (_Article) {
         // debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.height} >>`, `${sect.ele.clientHeight}`)
         // debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.top} >>`, `${sectTop}`)
         // debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.bottom} >>`, `${sectBtm}`)
-        _this15.hashSects.put(sect.selector, {
+        _this16.hashSects.put(sect.selector, {
           ele: sect.ele,
           height: sect.ele.clientHeight,
           top: sectTop,
@@ -19020,10 +19103,10 @@ var ArticleMobile = function (_Article) {
   }, {
     key: 'setupScrollManager',
     value: function setupScrollManager() {
-      var _this16 = this;
+      var _this17 = this;
 
       return new Promise(function (resolve) {
-        window.addEventListener('scroll', _this16.triggerAnimation);
+        window.addEventListener('scroll', _this17.triggerAnimation);
         resolve();
       });
     }
@@ -19135,7 +19218,7 @@ var FertilityD3 = exports.FertilityD3 = function () {
         _this.eleSelector = eleSelector;
         var svg = d3.select(eleSelector).append('svg').attr('width', _this.svgWidth).attr('height', _this.svgHeight);
 
-        svg.append('g').classed('chart', true).attr('transform', 'translate(80, -60)');
+        svg.append('g').classed('chart', true).attr('transform', 'translate(80, 0)');
 
         d3.select(_this.eleSelector + ' svg g.chart').append('line').attr('id', 'bestfit');
 
@@ -20139,7 +20222,7 @@ function renderChart(ele, targKey) {
   if (!configKey) {
     return;
   }
-  Highcharts.chart(ele, config[configKey]);
+  Highcharts.chart(ele, Object.assign({}, { exporting: { enabled: false } }, config[configKey]));
 }
 
 function elmYPosition(_ref) {
