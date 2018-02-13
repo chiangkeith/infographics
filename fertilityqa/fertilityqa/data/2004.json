@@ -16,6 +16,6 @@
     { "name" : "挪威", "rate1" : 1.8 , "rate2" : 75.7, "class" : "L"  },
     { "name" : "芬蘭", "rate1" : 1.8 , "rate2" : 72.0, "class" : "L"  },
     { "name" : "瑞典", "rate1" : 1.4 , "rate2" : 76.6, "class" : "L"  },
-    { "name" : "台灣", "rate1" : 1.2 , "rate2" : 53.5, "class" : "H"  },
+    { "name" : "台灣", "rate1" : 1.2 , "rate2" : 53.5, "class" : "H"  }
   ]
 }

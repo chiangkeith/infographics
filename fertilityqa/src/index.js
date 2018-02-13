@@ -6,8 +6,13 @@ import { find, map } from 'lodash'
 import HashTable from 'jshashtable'
 import verge from 'verge'
 
+const debugRaw = require('debug')
 const debug = require('debug')('FERTILITY:DEFAULT')
 const debugScroll = require('debug')('FERTILITY:SCROLL')
+const debugLayoutDone = require('debug')('FERTILITY:layoutDone')
+const debugMobile = require('debug')('FERTILITY:MOBILE')
+let deviceHeight, deviceWidth
+
 class Fertility {
   init () {
     this.blocks = {}
@@ -151,51 +156,52 @@ class Article {
   }
   init () {
     debug('INIT ARTICLE')
-    renderChart(document.querySelector(`.chart-container.a1m01 .hichart`), '1')
-    // renderChart(document.querySelector(`.a1m18 .hichart`), '11')
-    // renderChart(document.querySelector(`.chart-container.a1m18 .hichart`), 'm18')
-    renderChart(document.querySelector(`.chart-container.a2m08 .hichart`), 'm08')
-    // renderChart(document.querySelector(`.chart-container.a2m18 .hichart`), '11')
-    renderChart(document.querySelector(`.chart-container.a2m18-2 .hichart`), '11')
-    // renderChart(document.querySelector(`.chart-container.a2m13 .hichart`), '11')
-    renderChart(document.querySelector(`.chart-container.a2m14 .hichart`), 'm14')
-    // renderChart(document.querySelector(`.chart-container.a3m15 .hichart`), 'm15')
-    renderChart(document.querySelector(`.chart-container.a3t12 .hichart`), 't12')
-    renderChart(document.querySelector(`.chart-container.a4m18 .hichart`), 'm18')
-    // renderChart(document.querySelector(`.chart-container.a4t13 .hichart`), 't13')
-    renderChart(document.querySelector(`.chart-container.a4m22 .hichart`), 'm22')
-    renderChart(document.querySelector(`.chart-container.a4m25 .hichart`), 'm25')
-    renderChart(document.querySelector(`.chart-container.a4m28 .hichart`), 'm28')
-    // renderChart(document.querySelector(`.chart-container.a4m26 .hichart`), 'm26')
-    // renderChart(document.querySelector(`.chart-container.a4m27 .hichart`), 'm27')
-    renderChart(document.querySelector(`.chart-container.a4t15 .hichart`), 't15')
-    renderChart(document.querySelector(`.chart-container.a4t18 .hichart`), 't18')
-    renderChart(document.querySelector(`.chart-container.a4t20 .hichart`), 't20')
+
     document.querySelector('.exception').setAttribute('style', 'opacity: 1;')
     document.querySelector('.source-set').setAttribute('style', 'opacity: 1;')
     Promise.all([
       this.preCalc(),
-      this.setScrollManager()
+      this.renderHichart(),
+      this.setScrollManager(),
     ]).then(() => {
       debug('INIT FUNISHED')
-      this.d31 = new FertilityD3()
-      this.d31.init('#chart-d3-1')
+      this.d3 = new FertilityD3()
+      this.d3.init('#chart-d3-1')
     })
+  }
+  renderHichart () {
+    return Promise.all(
+      map([
+        renderChart(document.querySelector(`.chart-container.a1m01 .hichart`), '1'),
+        renderChart(document.querySelector(`.chart-container.a2m08 .hichart`), 'm08'),
+        renderChart(document.querySelector(`.chart-container.a2m18-2 .hichart`), '11'),
+        renderChart(document.querySelector(`.chart-container.a2m14 .hichart`), 'm14'),
+        renderChart(document.querySelector(`.chart-container.a3m15 .hichart`), 'm15'),
+        renderChart(document.querySelector(`.chart-container.a3t12 .hichart`), 't12'),
+        renderChart(document.querySelector(`.chart-container.a4m18 .hichart`), 'm18'),
+        renderChart(document.querySelector(`.chart-container.a4m22 .hichart`), 'm22'),
+        renderChart(document.querySelector(`.chart-container.a4m25 .hichart`), 'm25'),
+        renderChart(document.querySelector(`.chart-container.a4m28 .hichart`), 'm28'),
+        renderChart(document.querySelector(`.chart-container.a4t15 .hichart`), 't15'),
+        renderChart(document.querySelector(`.chart-container.a4t18 .hichart`), 't18'),
+        renderChart(document.querySelector(`.chart-container.a4t20 .hichart`), 't20'),
+      ], new Promise(resolve => resolve()))
+    )
   }
   preCalc () {
     return new Promise((resolve) => {
       const domSects = [...document.querySelectorAll('section')]
       const articles = [...document.querySelectorAll('.articlewpr')]
 
-      articles.map((article, index) => {
+      map(articles, (article, index) => {
         const sects = [...article.querySelectorAll('section')]
-        sects.map((sect, ind) => {
+        map(sects, (sect, ind) => {
           addClass(sect, `article${index}-section${ind}`)
         })
       })
 
       debug('Abt to write all section basic info to hash.')
-      domSects.map((sect, index) => {
+      map(domSects, (sect, index) => {
         const className = sect.getAttribute('class')
         if (!className) { return }
         const height = sect.clientHeight
@@ -231,15 +237,16 @@ class Article {
       const chart = flag || chartContainer.querySelector('.combo') || chartContainer.querySelector('.hichart') 
       if (!chart) { return }
       chart.setAttribute('style', 'position: relative;')
+      debug('chart.clientWidth', chart.clientWidth, chart.getAttribute('style'))
       const height = chart.clientHeight
       const width = chart.clientWidth
       const top = `top: calc(50% - ${height / 2}px);`
       const left = `left: calc(50% - ${width / 2}px);`
       debug('width', width)
       if (flag) {
-        chart.setAttribute('style', `${top}${left} width: ${width}px; z-index: 1;`)
+        chart.setAttribute('style', `${top}${left} width: ${width}px; z-index: 1;position: fixed;`)
       } else {
-        chart.setAttribute('style', `${top} width: ${width}px; z-index: 1;`)
+        chart.setAttribute('style', `${top} width: ${width}px; z-index: 1;position: fixed;`)
       }
       if (sourceSet) {        
         sourceSet.removeAttribute('style')
@@ -356,7 +363,6 @@ class Article {
     }
   }
   scrollHandler (event) {
-    const deviceHeight = verge.viewportH()
     const curr = currentYPosition()
     const middle = curr + deviceHeight / 2
     const sects = this.hashSects.values()
@@ -425,11 +431,122 @@ class Article {
     })
   }
 }
+class ArticleMobile extends Article{
+  constructor () {
+    super()
+    this.setupScrollManager =  this.setupScrollManager.bind(this)
+    this.triggerAnimation = this.triggerAnimation.bind(this)
+  }
+  init () {
+    Promise.all([
+      this.preCalc(),
+      this.renderHichart(),
+      this.setupScrollManager(),
+    ]).then(() => {
+      this.d3 = new FertilityD3()
+      this.d3.init('#chart-d3-1')
+      this.d35 = new FertilityD3()
+      this.d35.init('#chart-d3-5', '2016')
+    })
+  }
+  preCalc () {
+    return new Promise((resolve) => {
+      const domSects = [...document.querySelectorAll('section')]
+      const articles = [...document.querySelectorAll('.articlewpr')]
+  
+      map(articles, (article, index) => {
+        const sects = [...article.querySelectorAll('section')]
+        map(sects, (sect, ind) => {
+          addClass(sect, `article${index}-section${ind}`)
+        })
+      })
+  
+      debugRaw('FERTILITY:MOBILE:PreCalc')('Abt to write all section basic info to hash.')
+      map(domSects, (sect, index) => {
+        const className = sect.getAttribute('class')
+        if (!className) { return }
+        const height = sect.clientHeight
+        const top = elmYPosition({ ele: sect })
+        const selector = `.${className.split(' ').join('.')}`
+        this.hashSects.put(`${selector}`, { 
+          ele: sect,
+          height,
+          top,
+          bottom: height + top,
+          selector
+        })
+      })
+      debugRaw('FERTILITY:MOBILE:PreCalc')(this.hashSects.values())
+      resolve()
+    })
+  }
+  triggerAnimation () {
+    const curr = currentYPosition()
+    const base = curr + deviceHeight / 3
+    const sects = this.hashSects.values()
+    const lastSect = document.querySelector('section.fadein')
+    let currSect = find(sects, (sect) => {
+      const sectTop = elmYPosition({ ele: sect.ele })
+      const sectBtm = sectTop + sect.ele.clientHeight
+      // debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.height} >>`, `${sect.ele.clientHeight}`)
+      // debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.top} >>`, `${sectTop}`)
+      // debugRaw('FERTILITY:MOBILE:REVISE')(`${sect.bottom} >>`, `${sectBtm}`)
+      this.hashSects.put(sect.selector, {
+        ele: sect.ele,
+        height: sect.ele.clientHeight,
+        top: sectTop,
+        bottom: sectBtm,
+        selector: sect.selector
+      })
+      return sectTop <= base && sectBtm >= base
+    })
+    const fadein = () => {
+      currSect.ele && addClass(currSect.ele, 'fadein')
+    }
+    if (currSect && lastSect !== currSect.ele) {
+      fadein()
+      lastSect && removeClass(lastSect, 'fadein')
+      debugMobile('currSect', currSect.selector)
+    } else if (currSect) {
+      const line = currSect.ele.querySelector('.ratiowpr__chart__img.line')
+      if (line) {
+        const lineTop = elmYPosition({ ele: line })
+        if (lineTop < curr + deviceHeight / 3) {
+          this.setCoverout(line)
+        }
+      }
+    }
+  }
+  setupScrollManager () {
+    return new Promise((resolve) => {
+      window.addEventListener('scroll', this.triggerAnimation)
+      resolve()
+    })
+  }
+}
 window.addEventListener('DOMContentLoaded', () => {
+  let fertility
   window.addEventListener('layoutDone', () => {
     window.localStorage.debug = 'FERTILITY:*,FERTILITY:SCROLL,COMM,d3'
-    debug(location.href)
-    const fertility = location.href.indexOf('article') === -1 ? new Fertility() : new Article()
+    deviceHeight = verge.viewportH()
+    deviceWidth =  verge.viewportW()
+    /**
+     * checkout the device type by viewport
+     */
+
+    debugLayoutDone(location.href)
+    debugLayoutDone('viewport', deviceWidth, deviceHeight)
+    if (deviceWidth < 1001) {
+      debugLayoutDone('render mobile version')
+      fertility = new ArticleMobile()
+    } else {
+      debugLayoutDone('abt to init dertility')
+      fertility = location.href.indexOf('article') === -1 ? new Fertility() : new Article()
+    }
     fertility.init()
+  })
+  window.addEventListener('resize', () => {
+    // fertility.destroy()
+    location.reload()
   })
 })

@@ -74,7 +74,6 @@ export function renderChart (ele, targKey) {
     case '816112':
     case '16251':
     case '816251':
-    case 'm15':
       configKey = 'M15'
       break
     case '131':
@@ -130,6 +129,9 @@ export function renderChart (ele, targKey) {
       break
     case 'm18':
       configKey = 'M18_REAL'
+      break
+    case 'm15':
+      configKey = 'M15_REAL'
       break
   }
   debug('targKey', targKey, typeof(targKey), ele)

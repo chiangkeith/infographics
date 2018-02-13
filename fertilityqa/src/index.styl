@@ -53,7 +53,7 @@ li.invalid
           &__img__container
             width _width
             height _width * (945 / 1601)
-            position relative        
+            position absolute      
           &__img
             position absolute
             top 0
@@ -117,10 +117,10 @@ li.invalid
             // position fixed
             opacity 0
           .hichart
-            position fixed
+            // position fixed
             opacity 0
           .combo
-            position fixed
+            // position fixed
             opacity 0
             > .hichart
               position relative
@@ -145,6 +145,110 @@ li.invalid
               opacity 1
 .keepshow
   opacity 1!important
+
+@media (max-width 1000px)
+  .web
+    display none !important
+  .articlewpr
+    padding 60px 100px
+    section
+      min-height inherit
+      margin-top 100px
+      &.desc
+        margin-top inherit
+        .chart-container
+          margin 0 auto 20px
+      .chart-container
+        margin 40px auto
+        .ratiowpr
+          &__desc
+            width inherit
+            font-size inherit
+            line-height inherit
+            background-color inherit
+            padding inherit
+            border-radius inherit
+            margin inherit
+            position inherit
+            z-index inherit
+          &__chart
+            _width = 700px
+            &__img__container
+              position relative
+              width _width
+              height _width * (945 / 1601)
+
+  text
+    font-size 10px
+    fill #000
+@media (max-width 900px)
+  .articlewpr
+    section
+      .chart-container
+        .ratiowpr
+          &__chart
+            _width = 600px
+            &__img__container
+              width _width
+              height _width * (945 / 1601)
+@media (max-width 800px)
+  .articlewpr
+    padding 60px 60px
+@media (max-width 700px)
+  .articlewpr
+    section
+      .chart-container
+        .ratiowpr
+          &__chart
+            _width = 500px
+            &__img__container
+              width _width
+              height _width * (740 / 828)
+            &__img
+              &.bg
+                &.t1w
+                  background-image url(../images/DF_T1_pbg.png)
+              &.line
+                &.t1w
+                  background-image url(../images/0212DF_T1_p.jpg)
+                &.t2w
+                  background-image url(../images/0212DF_T2_p.jpg)
+                &.t3w
+                  background-image url(../images/0212DF_T3_p.jpg)
+              &.line-single
+                &.t1w
+                  background-image url(../images/DF_T1_p.png)
+@media (max-width 600px)
+  .articlewpr
+    padding 62px 30px 30px 30px
+    section
+      .chart-container
+        .ratiowpr
+          &__chart
+            _width = 400px
+            &__img__container
+              width _width
+              height _width * (740 / 828)
+@media (max-width 500px)
+  .articlewpr
+    section
+      .chart-container
+        .ratiowpr
+          &__chart
+            _width = 350px
+            &__img__container
+              width _width
+              height _width * (740 / 828)
+@media (max-width 350px)
+  .articlewpr
+    section
+      .chart-container
+        .ratiowpr
+          &__chart
+            _width = 260px
+            &__img__container
+              width _width
+              height _width * (740 / 828)
 @media (min-width 900px)
   .articlewpr
     section
@@ -181,7 +285,6 @@ li.invalid
         &.fix
           .ratiowpr
             &__chart
-              max-width calc(1100px)
               _width = 1000px
               &__img__container
                 width _width
@@ -205,8 +308,15 @@ line {
 
 line#bestfit {
 	stroke: #ddd;
-	stroke-width: 10px;
+	stroke-width: 2px;
 }
+
+.high
+  fill #f6613f
+.low
+  fill #f2c83d
+.avg
+  fill #00896c
 
 #xAxis path, #yAxis path, #xAxis line, #yAxis line {
 	stroke: #ccc;
@@ -215,6 +325,6 @@ line#bestfit {
 }
 
 text {
-	font-size: 12px;
-	fill: #888;
+	font-size: 14px;
+	fill: #000;
 }

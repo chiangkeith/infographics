@@ -7,106 +7,138 @@ export class FertilityD3 {
     this.updateChart = this.updateChart.bind(this)
     this.makeXAxis = this.makeXAxis.bind(this)
     this.makeYAxis = this.makeYAxis.bind(this)
+    // this.renderPoint = this.renderPoint.bind(this)
   }
-  init (eleSelector) {
+  init (eleSelector, year) {
     d3.json('./data/1980.json', (rawdata) => {
       this.xAxis = 'rate1'
       this.yAxis = 'rate2'
-      
-      this.data = rawdata.children
-      this.bounds = this.getBounds(this.data, 1)
+      this.rawdata = rawdata
+      this.data = year ? rawdata[ year ] : rawdata[ '1980' ]
+      this.bounds = this.getBounds(_.concat(..._.map(rawdata, d => d)), 1)
       debug(this.data)
       debug('bounds', this.bounds)
+      debug(_.concat(..._.map(rawdata, d => d)))
 
+      this.svgWidth = document.querySelector(eleSelector).clientWidth || 1000
+      // this.scale = this.svgWidth / 1000
+      // this.ratio = this.svgWidth < 1000 ? (740 / 828) : ( 640 / 1000)
+      // this.svgHeight = this.svgWidth * this.ratio
+      this.svgHeight = document.querySelector(eleSelector).clientHeight || 640
+      this.bias = this.svgWidth < 1100 ? 300 : 130
+      // this.bias = 0
+      debug('eleSelector.width', document.querySelector(eleSelector).clientWidth)
+      debug('eleSelector.width', document.querySelector(eleSelector).clientWidth)
+      debug('eleSelector.width', document.querySelector(eleSelector).clientWidth)
+      this.eleSelector = eleSelector
       const svg = d3.select(eleSelector)
-      .append('svg')
-      .attr('width', 1000)
-      .attr('height', 640)
+        .append('svg')
+        .attr('width', this.svgWidth)
+        .attr('height', this.svgHeight)
 
       svg.append('g')
-      .classed('chart', true)
-      .attr('transform', 'translate(80, -60)')
-      d3.select('svg g.chart')
-      .append('text')
-      .attr({'id': 'countryLabel', 'x': 0, 'y': 170})
-      .style({'font-size': '80px', 'font-weight': 'bold', 'fill': '#ddd'})
-      d3.select('svg g.chart')
+        .classed('chart', true)
+        .attr('transform', 'translate(80, -60)')
+
+      d3.select(`${this.eleSelector} svg g.chart`)
       .append('line')
       .attr('id', 'bestfit')
-      d3.select('svg g.chart')
-      .append('text')
-      .attr({'id': 'xLabel', 'x': 400, 'y': 670, 'text-anchor': 'middle'})
-      .text('生育率')
-      d3.select('svg g.chart')
-      .append('text')
-      .attr('transform', 'translate(-60, 330)rotate(-90)')
-      .attr({'id': 'yLabel', 'text-anchor': 'middle'})
-      .text('女性勞参率')
+
+      d3.select(`${this.eleSelector} svg g.chart`)
+        .append('text')
+        .attr({'id': 'xLabel', 'x': this.svgWidth / 2, 'y': this.svgHeight + 50 - this.bias / 2, 'text-anchor': 'middle'})
+        .text('生育率')
+
+      d3.select(`${this.eleSelector} svg g.chart`)
+        .append('text')
+        .attr('transform', `translate(${this.svgWidth > 500 ? -60 : -30}, ${this.svgWidth > 500 ? (this.svgHeight / 3 + (this.bias / 2)) : this.bias})rotate(-90)`)
+        .attr({'id': 'yLabel', 'text-anchor': 'middle'})
+        .text('女性勞参率')
 
       this.updateScales()
-      const pointColour = d3.scale.category20b()
-      d3.select('svg g.chart')
+      d3.select(`${this.eleSelector} svg g.chart`)
       .selectAll('circle')
       .data(this.data)
       .enter()
       .append('circle')
       .attr('cx', (d) => {
-        return isNaN(d[this.xAxis]) ? d3.select(this).attr('cx') : this.xScale(d[this.xAxis]);
+        return (isNaN(d[this.xAxis]) ? d3.select(this).attr('cx') : this.xScale(d[this.xAxis])) + (this.svgWidth > 500 ? 0 : -50);
       })
       .attr('cy', (d) => {
-        return isNaN(d[this.yAxis]) ? d3.select(this).attr('cy') : this.yScale(d[this.yAxis]);
+        return (isNaN(d[this.yAxis]) ? d3.select(this).attr('cy') : this.yScale(d[this.yAxis])) + this.bias / 2;
       })
-      .attr('fill', (d, i) => {return pointColour(i);})
-      .style('cursor', 'pointer')
-      .on('mouseover', (d) => {
-        d3.select('svg g.chart #countryLabel')
-          .text(d.name)
-          .transition()
-          .style('opacity', 1);
+      .attr('class', function (d) {
+        const _class = d.class === 'L' ? 'low'
+                                      : d.class === 'H'
+                                      ? 'high'
+                                      : 'avg'
+        return _class
       })
-      .on('mouseout', (d) => {
-        d3.select('svg g.chart #countryLabel')
-          .transition()
-          .duration(1500)
-          .style('opacity', 0);
+      d3.select(`${this.eleSelector} svg g.chart`)
+      .selectAll('text.name')
+      .data(this.data)
+      .enter()
+      .append('text')
+      .attr('class', 'name')
+      .attr("x", (d) => { return (isNaN(d[this.xAxis]) ? d3.select(this).attr('cx') : this.xScale(d[this.xAxis])) + (this.svgWidth > 500 ? 0 : -50) })
+      .attr("y", (d) => { return ((isNaN(d[this.yAxis]) ? d3.select(this).attr('cy') : this.yScale(d[this.yAxis])) + 20 + (this.bias / 2)) })
+      .text((d) => {
+        debug('d.name', d.name)
+        return d.name
       })
+
       this.updateChart(true)
-      d3.select('svg g.chart')
-      .append("g")
-      .attr('transform', 'translate(0, 630)')
-      .attr('id', 'xAxis')
-      .call(this.makeXAxis);
-      d3.select('svg g.chart')
-      .append("g")
-      .attr('id', 'yAxis')
-      .attr('transform', 'translate(-10, 0)')
-      .call(this.makeYAxis);
+      d3.select(`${this.eleSelector} svg g.chart`)
+        .append("g")
+        .attr('transform', `translate(${this.svgWidth > 500 ? 0 : -50}, ${this.svgHeight - (this.bias / 2) + 10})`)
+        .attr('id', 'xAxis')
+        .call(this.makeXAxis);
+      d3.select(`${this.eleSelector} svg g.chart`)
+        .append("g")
+        .attr('id', 'yAxis')
+        .attr('transform', `translate(${this.svgWidth > 500 ? -10 : -50}, ${this.bias / 2})`)
+        .call(this.makeYAxis);
+
+      debug('g size', d3.select(`${this.eleSelector} svg g.chart`).node().getBBox())
+      const newSize = d3.select(`${this.eleSelector} svg g.chart`).node().getBBox()
+      d3.select(`${this.eleSelector} svg`)
+        .attr("width", newSize.width + 10)
+        .attr("height", newSize.height + this.bias / 2)
     })
   }
   updateScales () {
     this.xScale = d3.scale.linear()
     .domain([this.bounds[this.xAxis].min, this.bounds[this.xAxis].max])
-    .range([20, 780])
+    .range([0, this.svgWidth > 500 ? this.svgWidth - 320 : this.svgWidth - 40 ])
+
     this.yScale = d3.scale.linear()
     .domain([this.bounds[this.yAxis].min, this.bounds[this.yAxis].max])
-    .range([600, 100])
+    .range([this.svgHeight - this.bias, 0])
   }
   updateChart (init) {
     this.updateScales()
-    d3.select('svg g.chart')
+    d3.select(`${this.eleSelector} svg g.chart`)
       .selectAll('circle')
       .transition()
       .duration(500)
       .ease('quad-out')
       .attr('cx', (d) => {
-        return isNaN(d[this.xAxis]) ? d3.select(this).attr('cx') : this.xScale(d[this.xAxis]);
+        return (isNaN(d[this.xAxis]) ? d3.select(this).attr('cx') : this.xScale(d[this.xAxis])) + (this.svgWidth > 500 ? 0 : -50);
       })
       .attr('cy', (d) => {
-        return isNaN(d[this.yAxis]) ? d3.select(this).attr('cy') : this.yScale(d[this.yAxis]);
+        return (isNaN(d[this.yAxis]) ? d3.select(this).attr('cy') : this.yScale(d[this.yAxis])) + (this.bias / 2);
       })
       .attr('r', (d) => {
         return isNaN(d[this.xAxis]) || isNaN(d[this.yAxis]) ? 0 : 12;
       });
+    d3.select(`${this.eleSelector} svg g.chart`)
+      .selectAll('text.name')
+      .transition()
+      .duration(500)
+      .ease('quad-out')
+      .attr("x", (d) => { return (isNaN(d[this.xAxis]) ? d3.select(this).attr('cx') : this.xScale(d[this.xAxis])) + (this.svgWidth > 500 ? 0 : -50) })
+      .attr("y", (d) => { return ((isNaN(d[this.yAxis]) ? d3.select(this).attr('cy') : this.yScale(d[this.yAxis])) + 20 + (this.bias / 2)) })
+
     d3.select('#xAxis')
       .transition()
       .call(this.makeXAxis);
@@ -122,7 +154,7 @@ export class FertilityD3 {
 
     d3.select('#bestfit')
       .style('opacity', 0)
-      .attr({'x1': this.xScale(x1), 'y1': this.yScale(y1), 'x2': this.xScale(x2), 'y2': this.yScale(y2)})
+      .attr({'x1': this.xScale(x1), 'y1': (this.yScale(y1) + (this.bias / 2)), 'x2': this.xScale(x2), 'y2': (this.yScale(y2) + (this.bias / 2))})
       .transition()
       .duration(1500)
       .style('opacity', 1);
@@ -186,5 +218,59 @@ export class FertilityD3 {
   
     // console.log(r, m, b);
     return {r: r, m: m, b: b};
+  }
+  update (year) {
+    
+    this.data = this.rawdata[ year ]
+    
+    d3.select(`${this.eleSelector} svg g.chart`)
+    .selectAll('circle')
+    .data(this.data)
+    .enter()
+    .append('circle')
+    .attr('cx', (d) => {
+      return (isNaN(d[this.xAxis]) ? d3.select(this).attr('cx') : this.xScale(d[this.xAxis])) + (this.svgWidth > 500 ? 0 : -50);
+    })
+    .attr('cy', (d) => {
+      return (isNaN(d[this.yAxis]) ? d3.select(this).attr('cy') : this.yScale(d[this.yAxis])) + (this.bias / 2);
+    })
+    .attr('class', function (d) {
+      const _class = d.class === 'L' ? 'low'
+                                   : d.class === 'H'
+                                   ? 'high'
+                                   : 'avg'
+      return _class
+    })
+
+
+    // const names =  d3.select(`${this.eleSelector} svg g.chart`)
+    // .selectAll('text.name')
+    // .data(this.data);
+
+    d3.select(`${this.eleSelector} svg g.chart`)
+    .selectAll('text.name')
+    .data(this.data)
+    .attr("x", (d) => { return (isNaN(d[this.xAxis]) ? d3.select(this).attr('cx') : this.xScale(d[this.xAxis])) + (this.svgWidth > 500 ? 0 : -50) })
+    .attr("y", (d) => { return (isNaN(d[this.yAxis]) ? d3.select(this).attr('cy') : this.yScale(d[this.yAxis]) + 20 + (this.bias / 2)) })
+    .text((d) => { return d.name });
+
+    d3.select(`${this.eleSelector} svg g.chart`)
+    .selectAll('text.name')
+    .data(this.data)
+    .enter()
+    .append('text')
+    .attr('class', 'name')
+    .attr("x", (d) => { return (isNaN(d[this.xAxis]) ? d3.select(this).attr('cx') : this.xScale(d[this.xAxis])) + (this.svgWidth > 500 ? 0 : -50) })
+    .attr("y", (d) => { return (isNaN(d[this.yAxis]) ? d3.select(this).attr('cy') : this.yScale(d[this.yAxis]) + 20 + (this.bias / 2)) })
+    .text((d) => { return d.name })
+
+    this.updateChart()
+
+    const circle = d3.select(`${this.eleSelector} svg g.chart`).selectAll("circle").data(this.data)
+    const names = d3.select(`${this.eleSelector} svg g.chart`).selectAll('text.name').data(this.data)
+    circle.exit().remove()
+    names.exit().remove()
+    // const name = d3.select(`${this.eleSelector} svg g.chart`).selectAll("text").data(this.data)
+    // name.exit().empty()
   }
 }

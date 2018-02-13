@@ -1106,3 +1106,116 @@ export const M08 = {
       color: '#C1272D'
   }]
 }
+export const M15_REAL = {
+  chart: {
+      borderWidth: 0,
+      marginTop: 50,
+      marginBottom: 50,
+      backgroundColor: '#f8f3d6',
+  },
+  title: {
+      text: ''
+  },
+  credits: {
+      enabled: false
+  },
+  legend: {
+    align: 'right', 
+    verticalAlign: 'top',
+    y: -20
+  },
+  plotOptions: {
+    series: {
+      dataLabels: {
+        enabled: true,
+        format: "{point.name}",
+        align: 'right',
+        verticalAlign: 'middle',
+        x: -2,
+        y: -1,
+        style: {
+          textOutline: 0
+        }
+      }
+    }
+  },
+  tooltip: {
+    enabled: true,
+    headerFormat: '<b>{point.key}</b><br>',
+    pointFormat: '生育率: {point.x} %<br>托育率: {point.y} %'
+  },
+  exporting: { enabled: false },
+  xAxis: {
+      min: 1,
+      max: 2,
+      title: { text: '生育率 (個)' },
+  },
+  yAxis: {
+      min: 0,
+      max: 80,
+      title: { text: '托育率 (%)' },
+  },
+  series: [
+    {
+        type: 'line',
+        name: '線性迴歸',
+        data: [[1.07, 15.43], [2, 48.41]],
+        color: '#1a1a1a',
+        dashStyle: 'Dash',
+        marker: {
+            enabled: false
+        },
+        states: {
+            hover: {
+                lineWidth: 0
+            }
+        },
+        enableMouseTracking: false
+    },
+    {
+      type: 'scatter',
+      name: '生育率低於 1.5',
+      marker: { radius: 3, fillColor: '#BA8A00', symbol: 'circle' },
+      data: [
+        { x: 1.2, y: 43.4, name: "葡萄牙" },
+        { x: 1.5, y: 41.0, name: "瑞士" },
+        { x: 1.3, y: 36.0, name: "西班牙" },
+        { x: 1.2, y: 34.3, name: "韓國" },
+        { x: 1.4, y: 29.4, name: "日本" },
+        { x: 1.4, y: 29.3, name: "德國" },
+        { x: 1.5, y: 23.3, name: "拉脫維亞" },
+        { x: 1.4, y: 23.1, name: "以色列" },
+        { x: 1.5, y: 22.8, name: "愛沙尼亞" },
+        { x: 1.4, y: 19.3, name: "奧地利" },
+        { x: 1.3, y: 16.9, name: "希臘" },
+        { x: 1.3, y: 14.2, name: "匈牙利" },
+        { x: 1.07, y: 9.83, name: "台灣" },
+        { x: 1.3, y: 9.3, name: "波蘭" },
+        { x: 1.5, y: 4.3, name: "捷克" },
+        { x: 1.3, y: 3.1, name: "斯洛伐克" },
+      ]
+    },
+    {
+      type: 'scatter',
+      name: '生育率高於 1.5',
+      marker: { radius: 3, fillColor: '#C1272D', symbol: 'circle' },
+      data: [
+        { x: 1.7, y: 67.1, name: "丹麥" },
+        { x: 1.9, y: 58.6, name: "冰島" },
+        { x: 1.8, y: 54.8, name: "挪威" },
+        { x: 1.7, y: 54.6, name: "荷蘭" },
+        { x: 1.6, y: 53.6, name: "盧森堡" },
+        { x: 2, y: 50.6, name: "法國" },
+        { x: 1.7, y: 47.8, name: "比利時" },
+        { x: 1.9, y: 47.6, name: "瑞典" },
+        { x: 1.6, y: 41.6, name: "斯洛維尼亞" },
+        { x: 2, y: 40.9, name: "紐西蘭" },
+        { x: 1.8, y: 34.4, name: "英國" },
+        { x: 1.7, y: 33.8, name: "OECD平均" },
+        { x: 2, y: 32.9, name: "愛爾蘭" },
+        { x: 1.8, y: 28.2, name: "芬蘭" },
+        { x: 1.8, y: 18.4, name: "智利" },
+      ]
+    }
+  ]
+}
