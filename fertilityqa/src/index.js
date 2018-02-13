@@ -1,10 +1,26 @@
 import './index.styl'
 import { FertilityD3 } from './d3'
-import { addClass, elmYPosition, getClientOS, getPosition, renderChart, removeClass, hasClass, isDescendant } from './comm'
+import { addClass, elmYPosition, getClientOS, getPosition, renderChart, removeClass, hasClass, isDescendant, sendGa } from './comm'
 import { currentYPosition, smoothScrollTo } from 'kc-scroll'
 import { find, get, map } from 'lodash'
 import HashTable from 'jshashtable'
 import verge from 'verge'
+import pym from 'pym.js'
+
+const chartList = [
+  { selector: '.ch2', id: 2 },
+  { selector: '.ch3', id: 3 },
+  { selector: '.ch4', id: 4 },
+  { selector: '.a2m08', id: 5 },
+  { selector: '.a2m13', id: 6 },
+  { selector: '.a3m15', id: 7 },
+  { selector: '.ch8', id: 8 },
+  { selector: '.a3t12-2', id: 9 },
+  { selector: '.a4m18-2', id: 10 },
+  { selector: '.a4m22', id: 11 },
+  { selector: '.a4t18', id: 12 },
+  { selector: '.a4t20', id: 13 }
+]
 
 const debugRaw = require('debug')
 const debug = require('debug')('FERTILITY:DEFAULT')
@@ -12,6 +28,50 @@ const debugScroll = require('debug')('FERTILITY:SCROLL')
 const debugLayoutDone = require('debug')('FERTILITY:layoutDone')
 const debugMobile = require('debug')('FERTILITY:MOBILE')
 let deviceHeight, deviceWidth
+const setUpClickHandler = () => {
+  return new Promise((resolve) => {
+    const shareBtns = [...document.querySelectorAll('.nav--btnset > div')]
+    const mmBtn = document.querySelector('.topbtn.mirrormedia')
+    const navBtns = [...document.querySelectorAll('.marker--btn')]
+    const continueBtn = document.querySelector('.continue.btn')
+    map(shareBtns, (btn) => {
+      const className = btn.getAttribute('class').indexOf('facebook') > -1
+                              ? 'fb' : btn.getAttribute('class').indexOf('line') > -1
+                              ? 'line' : btn.getAttribute('class').indexOf('g-plus') > -1
+                              ? 'gplus' : undefined
+      className && btn.addEventListener('click', () => sendGa({
+        category: 'projects',
+        action: 'click',
+        label: `share to ${className}`,
+        noninteraction: false
+      }))      
+    })
+    map(navBtns, (btn, index) => {
+      btn.addEventListener('click', () => sendGa({
+        category: 'projects',
+        action: 'click',
+        label: `nav${index + 1}`,
+        noninteraction: false
+      })) 
+    })
+    mmBtn && mmBtn.addEventListener('click', () => sendGa({
+      category: 'projects',
+      action: 'click',
+      label: 'back to home',
+      noninteraction: false
+    }))
+    continueBtn && continueBtn.addEventListener('click', (e) => {
+      // const pymParent = new pym.Parent('article-fertility', './article.html', {})
+      sendGa({
+        category: 'projects',
+        action: 'scroll',
+        label: `go to article`,
+        noninteraction: false
+      })
+    })
+    resolve()
+  })
+}
 
 class Fertility {
   init () {
@@ -22,25 +82,26 @@ class Fertility {
 
     Promise.all([
       this.reviseOpts(),
-      this.setupOpening()
+      this.setupOpening(),
+      setUpClickHandler()
     ]).then(() => {
-      // renderChart(document.querySelector(`article[data-key="1"] .hichart`), '1')
-      // renderChart(document.querySelector(`article[data-key="81"] .hichart`), '81')
-      // renderChart(document.querySelector(`article[data-key="11"] .hichart`), '11')
-      // renderChart(document.querySelector(`article[data-key="811"] .hichart`), '811')
-      // renderChart(document.querySelector(`article[data-key="141"] .hichart`), '141')
-      // renderChart(document.querySelector(`article[data-key="14"] .hichart`), '14')
-      // renderChart(document.querySelector(`article[data-key="814"] .hichart`), '814')
-      // renderChart(document.querySelector(`article[data-key="16112"] .hichart`), '16112')
-      // renderChart(document.querySelector(`article[data-key="816112"] .hichart`), '816112')
-      // renderChart(document.querySelector(`article[data-key="16251"] .hichart`), '16251')
-      // renderChart(document.querySelector(`article[data-key="816251"] .hichart`), '816251')
-      // renderChart(document.querySelector(`article[data-key="131"] .hichart`), '131')
-      // renderChart(document.querySelector(`article[data-key="8131"] .hichart`), '8131')
-      // renderChart(document.querySelector(`article[data-key="23"] .hichart`), '23')
-      // renderChart(document.querySelector(`article[data-key="823"] .hichart`), '823')
-      // renderChart(document.querySelector(`article[data-key="16123"] .hichart`), '16123')
-      // renderChart(document.querySelector(`article[data-key="816123"] .hichart`), '816123')
+      renderChart(document.querySelector(`article[data-key="1"] .hichart`), '1')
+      renderChart(document.querySelector(`article[data-key="81"] .hichart`), '81')
+      renderChart(document.querySelector(`article[data-key="11"] .hichart`), '11')
+      renderChart(document.querySelector(`article[data-key="811"] .hichart`), '811')
+      renderChart(document.querySelector(`article[data-key="141"] .hichart`), '141')
+      renderChart(document.querySelector(`article[data-key="14"] .hichart`), '14')
+      renderChart(document.querySelector(`article[data-key="814"] .hichart`), '814')
+      renderChart(document.querySelector(`article[data-key="16112"] .hichart`), '16112')
+      renderChart(document.querySelector(`article[data-key="816112"] .hichart`), '816112')
+      renderChart(document.querySelector(`article[data-key="16251"] .hichart`), '16251')
+      renderChart(document.querySelector(`article[data-key="816251"] .hichart`), '816251')
+      renderChart(document.querySelector(`article[data-key="131"] .hichart`), '131')
+      renderChart(document.querySelector(`article[data-key="8131"] .hichart`), '8131')
+      renderChart(document.querySelector(`article[data-key="23"] .hichart`), '23')
+      renderChart(document.querySelector(`article[data-key="823"] .hichart`), '823')
+      renderChart(document.querySelector(`article[data-key="16123"] .hichart`), '16123')
+      renderChart(document.querySelector(`article[data-key="816123"] .hichart`), '816123')
       return this.suckBlocks().then(() => {
         return this.removeBlocks().then(() => {
           // console.log(this.blocks)
@@ -75,7 +136,8 @@ class Fertility {
         this.playground.appendChild(this.blocks[ 0 ])
         this.setupNextQAHandler(this.blocks[ 0 ], 0)
         btnStart.removeEventListener('click', btnClickHandler)
-        const targetY = elmYPosition(`article[data-key="0"]`)
+        const targetY = elmYPosition({ eID: `article[data-key="0"]` })
+        debug('about to go next qa', targetY)
         smoothScrollTo({ yPos: targetY, steps: this.scrollStep })
       }
       btnStart.addEventListener('click', btnClickHandler)
@@ -106,7 +168,8 @@ class Fertility {
           addClass(btn, 'invalid')
         })
         renderChart(document.querySelector(`article[data-key="${targKey}"] .hichart`), targKey)
-        smoothScrollTo({ yPos: elmYPosition(`article[data-key="${targKey}"]`), steps: this.scrollStep })
+        debug('about to go next qa')
+        smoothScrollTo({ yPos: elmYPosition({ eID: `article[data-key="${targKey}"]` }), steps: this.scrollStep })
       }
       btns.map((btn) => {
         btn.addEventListener('click', btnClickHandler)
@@ -164,6 +227,7 @@ class Article {
     Promise.all([
       this.renderHichart(),
       this.setScrollManager(),
+      setUpClickHandler(),
     ]).then(() => {
       debug('INIT FUNISHED')
       this.d3 = new FertilityD3()
@@ -471,14 +535,25 @@ class Article {
     nodeParentInd && addClass(makers[nodeParentInd], 'current')
     this.currentArticle = nodeParentInd
 
+    
     const fadein = () => {
       currSect.ele && addClass(currSect.ele, 'fadein')
       const line = currSect.ele.querySelector('.ratiowpr__chart__img.line')
       line && this.setCoverout(line)
     }
     if (currSect && lastSect !== currSect.ele) {
-      if (currSect && currSect.chart) {
+      if (currSect.chart) {
         this.setupChartPos(currSect.chart).then(() => fadein())
+        const chartReached = find(chartList, (chart) => (
+          !chart.flag && document.querySelector(`section ${chart.selector}`) === currSect.chart
+        ))
+        chartReached && sendGa({
+          category: 'projects',
+          action: 'scroll',
+          label: `scroll to ${chartReached.id}`,
+          noninteraction: false
+        })
+        chartReached && (chartReached.flag = true)
       } else {
         fadein()
       }
@@ -546,6 +621,7 @@ class ArticleMobile extends Article{
       this.preCalc(),
       this.renderHichart(),
       this.setupScrollManager(),
+      setUpClickHandler()
     ]).then(() => {
       this.d3 = new FertilityD3()
       this.d3.init('#chart-d3-1')
@@ -573,12 +649,14 @@ class ArticleMobile extends Article{
         const height = sect.clientHeight
         const top = elmYPosition({ ele: sect })
         const selector = `.${className.split(' ').join('.')}`
+        const chart = sect.querySelector('.chart-container')
         this.hashSects.put(`${selector}`, { 
           ele: sect,
           height,
           top,
           bottom: height + top,
-          selector
+          selector,
+          chart
         })
       })
       debugRaw('FERTILITY:MOBILE:PreCalc')(this.hashSects.values())
@@ -601,7 +679,8 @@ class ArticleMobile extends Article{
         height: sect.ele.clientHeight,
         top: sectTop,
         bottom: sectBtm,
-        selector: sect.selector
+        selector: sect.selector,
+        chart: sect.chart
       })
       return sectTop <= base && sectBtm >= base
     })
@@ -614,13 +693,21 @@ class ArticleMobile extends Article{
     const lastArticle = makers[this.currentArticle]
     this.currentArticle !==  nodeParentInd && lastArticle && removeClass(makers[this.currentArticle], 'current')
     nodeParentInd && addClass(makers[nodeParentInd], 'current')
-    debugMobile('nodeParent', nodeParent)
-    debugMobile('nodeParentInd', nodeParentInd)
     this.currentArticle = nodeParentInd
     if (currSect && lastSect !== currSect.ele) {
       fadein()
       lastSect && removeClass(lastSect, 'fadein')
       debugMobile('currSect', currSect.selector)
+      const chartReached = find(chartList, (chart) => (
+        currSect.chart && !chart.flag && document.querySelector(`section ${chart.selector}`) === currSect.chart
+      ))
+      chartReached && sendGa({
+        category: 'projects',
+        action: 'scroll',
+        label: `scroll to ${chartReached.id}`,
+        noninteraction: false
+      })
+      chartReached && (chartReached.flag = true)
     } else if (currSect) {
       const line = currSect.ele.querySelector('.ratiowpr__chart__img.line')
       if (line) {
@@ -640,8 +727,12 @@ class ArticleMobile extends Article{
 }
 window.addEventListener('DOMContentLoaded', () => {
   let fertility
+  const pymChild = new pym.Child({ renderCallback: () => {
+    
+  }})
   window.addEventListener('layoutDone', () => {
     window.localStorage.debug = 'FERTILITY:*,FERTILITY:SCROLL,COMM,d3'
+    // window.localStorage.debug = 'COMM'
     deviceHeight = verge.viewportH()
     deviceWidth =  verge.viewportW()
     /**
@@ -658,6 +749,18 @@ window.addEventListener('DOMContentLoaded', () => {
       fertility = location.href.indexOf('article') === -1 ? new Fertility() : new Article()
     }
     fertility.init()
+    if (location.href.indexOf('article') > -1) {
+      const pymParent = new pym.Parent('mm-projects', 'https://mirrormedia.mg/project-list/dark?excluding=fertilityqa', {})
+      // const pymChild = new pym.Child({ renderCallback: () => {
+      //   pymChild.sendHeight()
+      // }})
+    } else {
+    }
+  })
+  window.addEventListener('load', () => {
+    // if (location.href.indexOf('article') > -1) {
+    //   pymChild.sendHeight()
+    // }
   })
   window.addEventListener('resize', () => {
     // fertility.destroy()

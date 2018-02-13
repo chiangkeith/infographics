@@ -1,5 +1,6 @@
 import * as config from './hichart'
 const debug = require('debug')('COMM')
+const THIS_PATH = document.location.href
 
 export function trim(str) {
   return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
@@ -180,4 +181,11 @@ export function isDescendant (child, { classname = 'none' }) {
     node = node.parentNode
   }
   return false
+}
+export function sendGa ({ category, action, label, noninteraction }) {
+  window.ga && window.ga('send', 'event', category, action, label, {
+    location: THIS_PATH,
+    nonInteraction: noninteraction
+  })
+  debug('Just send ga event:', { category, action, label, noninteraction })
 }
