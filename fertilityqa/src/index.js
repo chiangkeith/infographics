@@ -1,4 +1,5 @@
 import './index.styl'
+// import '../css/layout.css'
 import { FertilityD3 } from './d3'
 import { addClass, elmYPosition, getClientOS, getPosition, renderChart, removeClass, hasClass, isDescendant, sendGa } from './comm'
 import { currentYPosition, smoothScrollTo } from 'kc-scroll'
@@ -34,6 +35,7 @@ const setUpClickHandler = () => {
     const mmBtn = document.querySelector('.topbtn.mirrormedia')
     const navBtns = [...document.querySelectorAll('.marker--btn')]
     const continueBtn = document.querySelector('.continue.btn')
+    const goArticleDir = document.querySelector('.go-art-dir')
     map(shareBtns, (btn) => {
       const className = btn.getAttribute('class').indexOf('facebook') > -1
                               ? 'fb' : btn.getAttribute('class').indexOf('line') > -1
@@ -61,7 +63,14 @@ const setUpClickHandler = () => {
       noninteraction: false
     }))
     continueBtn && continueBtn.addEventListener('click', (e) => {
-      // const pymParent = new pym.Parent('article-fertility', './article.html', {})
+      sendGa({
+        category: 'projects',
+        action: 'scroll',
+        label: `go to article`,
+        noninteraction: false
+      })
+    })
+    goArticleDir && goArticleDir.addEventListener('click', (e) => {
       sendGa({
         category: 'projects',
         action: 'scroll',
@@ -94,14 +103,16 @@ class Fertility {
       renderChart(document.querySelector(`article[data-key="814"] .hichart`), '814')
       renderChart(document.querySelector(`article[data-key="16112"] .hichart`), '16112')
       renderChart(document.querySelector(`article[data-key="816112"] .hichart`), '816112')
+      renderChart(document.querySelector(`article[data-key="16122"] .hichart`), '16122')
+      renderChart(document.querySelector(`article[data-key="816122"] .hichart`), '816122')
       renderChart(document.querySelector(`article[data-key="16251"] .hichart`), '16251')
       renderChart(document.querySelector(`article[data-key="816251"] .hichart`), '816251')
       renderChart(document.querySelector(`article[data-key="131"] .hichart`), '131')
       renderChart(document.querySelector(`article[data-key="8131"] .hichart`), '8131')
       renderChart(document.querySelector(`article[data-key="23"] .hichart`), '23')
       renderChart(document.querySelector(`article[data-key="823"] .hichart`), '823')
-      renderChart(document.querySelector(`article[data-key="16123"] .hichart`), '16123')
-      renderChart(document.querySelector(`article[data-key="816123"] .hichart`), '816123')
+      // renderChart(document.querySelector(`article[data-key="16123"] .hichart`), '16123')
+      // renderChart(document.querySelector(`article[data-key="816123"] .hichart`), '816123')
       return this.suckBlocks().then(() => {
         return this.removeBlocks().then(() => {
           // console.log(this.blocks)
@@ -115,6 +126,7 @@ class Fertility {
       options.map((opt) => {
         const optText = opt.innerText
         opt.setAttribute('data-key', optText.replace(/^[A-Za-z0-9.*+?^=!:${}()#%~&_@\-`|\[\]\/\\]*[^(\(\d+\))]*/g, '').replace(/[\s()]*/g, ''))
+        if (opt.querySelector('a')) { return }
         opt.innerText = optText.replace(/[\(\d+\)]*$/, '')
       })
       resolve()
@@ -123,7 +135,7 @@ class Fertility {
   removeBlocks () {
     return new Promise((resolve) => {
       const blocks = [ ...document.querySelectorAll('article') ]
-      blocks.map((block) => {
+      map(blocks, (block) => {
         this.playground.removeChild(block)
       })
       resolve()
@@ -147,7 +159,7 @@ class Fertility {
   suckBlocks () {
     return new Promise((resolve) => {
       const blocks = [ ...document.querySelectorAll('article') ]
-      blocks.map((block) => {
+      map(blocks, (block) => {
         this.blocks[ block.getAttribute('data-key') ] = block
       })
       resolve()
@@ -200,7 +212,7 @@ class Fertility {
         }
       }
     }
-    const url = `https://www.mirrormedia.mg/gorest/poll_increase?qid=stork01162&field=${qcom}`
+    const url = `https://www.mirrormedia.mg/gorest/poll_increase?qid=stork2018&field=${qcom}`
     xhttp.open('GET', url, true)
     xhttp.send()
   }
@@ -313,35 +325,73 @@ class Article {
       const flag = chartContainer.querySelector('.ratiowpr__chart') || false
       const chart = flag || chartContainer.querySelector('.combo') || chartContainer.querySelector('.hichart') 
       if (!chart) { return }
-      chart.setAttribute('style', 'position: relative;')
-      debug('chart.clientWidth', chart.clientWidth, chart.getAttribute('style'))
-      const height = chart.clientHeight
-      const width = chart.clientWidth
-      const top = `top: calc(50% - ${height / 2}px);`
+
+      const shadowChart = chart.cloneNode(true)
+      shadowChart.setAttribute('style', 'position: relative; opacity: 0!important;')
+      chart.parentNode.appendChild(shadowChart)
+      const height = shadowChart.clientHeight
+      const width = shadowChart.clientWidth
+      chart.parentNode.removeChild(shadowChart)
+
+      // chart.setAttribute('style', 'position: relative;')
+      // debug('chart.clientWidth', chart.clientWidth, chart.getAttribute('style'))
+      // const height = chart.clientHeight
+      // const width = chart.clientWidth
+      const top = `top: ${(deviceHeight - height) / 2}px;`
+      // const top = `top: calc(50% - ${height / 2}px);`
       const left = `left: calc(50% - ${width / 2}px);`
-      debug('width', width)
+      // debugRaw('SETPOS')('SETPOS', height, width)
+      // debugRaw('SETPOS')('SETPOS', cloneChart.clientHeight, cloneChart.clientWidth)
+      // debug('width', width)
+
+      let chartLastPos
       if (flag) {
-        chart.setAttribute('style', `${top}${left} width: ${width}px; z-index: 1;position: fixed;`)
+        // debugRaw('SETPOS')('set chart 1')
+        // chart.setAttribute('style', `${top}${left} width: ${width}px; z-index: 1;position: fixed;`)
+        chartLastPos = `${top}${left} width: ${width}px; z-index: 1;position: fixed;`
       } else {
-        chart.setAttribute('style', `${top} width: ${width}px; z-index: 1;position: fixed;`)
+        // debugRaw('SETPOS')('set chart 2')
+        // chart.setAttribute('style', `${top} width: ${width}px; z-index: 1;position: fixed;`)
+        chartLastPos = `${top} width: ${width}px; z-index: 1;position: fixed;`
       }
-      if (sourceSet) {        
-        sourceSet.removeAttribute('style')
+
+      if (chart.chartLastPos !== chartLastPos) {
+        chart.setAttribute('style', chartLastPos)
+        chart.chartLastPos = chartLastPos
+      }
+
+      if (sourceSet) {
+        const shadowSourceSet = sourceSet.cloneNode(true)
+        shadowSourceSet.setAttribute('style', 'opacity: 0!important;')
+        sourceSet.parentNode.appendChild(shadowSourceSet)
+        const sourceHight = shadowSourceSet.clientHeight
+        const sourceWidth = shadowSourceSet.clientWidth
+        sourceSet.parentNode.removeChild(shadowSourceSet)
+
+        // sourceSet.removeAttribute('style')
         // const sourcePos = getPosition(sourceSet)
         const align = sourceSet.getAttribute('textalign')
+        const isD3 = sourceSet.getAttribute('d3')
         const textAlign = align ? align === 'right'
         ? `text-align: center;`
         : `text-align: ${align};`
         : ``
-        const sourceHight = sourceSet.clientHeight
-        const sourceWidth = sourceSet.clientWidth
-        const sourceTop = `top: calc(50% - ${height / 2}px - ${align ? 40 : 0}px);`
+        // const sourceHight = sourceSet.clientHeight
+        // const sourceWidth = sourceSet.clientWidth
+        // const sourceTop = `top: calc(50% - ${height / 2}px - ${}px);`
+        const sourceTop = `top: ${(deviceHeight - height) / 2 - (!isD3 ? sourceHight : (align ? 40 : 0))}px;`
         const sourceLeft = flag ? align !== 'right' 
                                 ? left
                                 : `left: 50%;`
                                 : ''
         // const sourceLeft = left
-        sourceSet.setAttribute('style', `${sourceTop}${sourceLeft}width: ${sourceWidth}px; height: ${sourceHight}px;position: fixed;z-index: 2;${textAlign}`)
+
+        const sourceSetLastPos = `${sourceTop}${sourceLeft}width: ${sourceWidth}px; height: ${sourceHight}px;position: fixed;z-index: 2;${textAlign}`
+        if (sourceSet.sourceSetLastPos !== sourceSetLastPos) {
+          sourceSet.setAttribute('style', sourceSetLastPos)
+          sourceSet.sourceSetLastPos = sourceSetLastPos
+        }
+        // sourceSet.setAttribute('style', `${sourceTop}${sourceLeft}width: ${sourceWidth}px; height: ${sourceHight}px;position: fixed;z-index: 2;${textAlign}`)
       }
       resolve()
     })
@@ -424,17 +474,36 @@ class Article {
     let currSect = find(sects, (sect) => (sect.top <= middle && sect.bottom >= middle))
 
     const fixup = (container) => new Promise((resolve) => {
-      container.removeAttribute('style')
-      const chartContainerWidth = container.clientWidth
-      const chartContainerHeight = container.clientHeight
+      const shadow = container.cloneNode(true)
+      shadow.setAttribute('style', 'opacity: 0!important;')
+      container.parentNode.appendChild(shadow)
+      const chartContainerWidth = shadow.clientWidth
+      const chartContainerHeight = shadow.clientHeight
+      container.parentNode.removeChild(shadow)
+
+      // container.removeAttribute('style')
+      // const chartContainerWidth = container.clientWidth
+      // const chartContainerHeight = container.clientHeight
       const width = `width: ${chartContainerWidth}px;`
       const height = `height: ${chartContainerHeight}px;`
       const top = `top: ${deviceHeight / 3}px;`
-      container.setAttribute('style', `position: fixed; ${top}${width}${height}`)
+      
+      const latestPos = `position: fixed; ${top}${width}${height}`
+      debugRaw('SETPOS')('FIX')
+      debugRaw('SETPOS')('FIX', container.latestPos)
+      debugRaw('SETPOS')('FIX', latestPos)
+      debugRaw('SETPOS')('FIX')
+      if (container.latestPos !== latestPos) {
+        container.setAttribute('style', latestPos)
+        container.latestPos = latestPos
+      } 
+      // container.setAttribute('style', `position: fixed; ${top}${width}${height}`)
+
       resolve()
     })
     const destroyFixup = (container) => new Promise((resolve) => {
       container.removeAttribute('style')
+      container.latestPos = null
       resolve()
     })
     const goWithParent = (container) => new Promise((resolve) => {
@@ -443,7 +512,12 @@ class Article {
       const chartContainerHeight = container.clientHeight
       const width = `width: ${chartContainerWidth}px;`
       const height = `height: ${chartContainerHeight}px;`
-      container.setAttribute('style', `position: absolute; bottom: 0;${width}${height}`)
+      const latestPos = `position: absolute; bottom: 0;${width}${height}`
+      if (container.latestPos !== latestPos) {
+        container.setAttribute('style', latestPos)
+        container.latestPos = latestPos
+      }
+      // container.setAttribute('style', `position: absolute; bottom: 0;${width}${height}`)
       resolve()
     })
     const goWithSibling = (container, marginBtm) => new Promise((resolve) => {
@@ -543,7 +617,11 @@ class Article {
     }
     if (currSect && lastSect !== currSect.ele) {
       if (currSect.chart) {
-        this.setupChartPos(currSect.chart).then(() => fadein())
+        if (currSect.ele.className.indexOf('article0-section0') === -1) {
+          this.setupChartPos(currSect.chart).then(() => fadein())
+        } else {
+          fadein()
+        }
         const chartReached = find(chartList, (chart) => (
           !chart.flag && document.querySelector(`section ${chart.selector}`) === currSect.chart
         ))
@@ -560,27 +638,53 @@ class Article {
       lastSect && removeClass(lastSect, 'fadein')
       debugScroll('currSect', currSect.selector)
     }
-    if (curr > 1) {
-      const sourceSet = document.querySelector('.source-set')
-      const exception = document.querySelector('.exception')
-      if (sourceSet) {
-        sourceSet.removeAttribute('style')
-        exception.removeAttribute('style')
-        const sourceHight = sourceSet.clientHeight
-        const sourceWidth = sourceSet.clientWidth
-        const sourcePos = getPosition(sourceSet)
-        const sourceTop = `top: ${sourcePos.y}px;`
-        const sourceLeft = ``
-        sourceSet.setAttribute('style', `position: fixed;${sourceTop}${sourceLeft} width: ${sourceWidth}px; height: ${sourceHight}px;`)
-        exception.setAttribute('style', `position: fixed;top: ${sourcePos.y + sourceHight}px;`)
-      } else {
-        exception.setAttribute('style', `position: fixed;`)
-      }
-    } else {
-      document.querySelector('.exception').removeAttribute('style')
-      document.querySelector('.source-set').removeAttribute('style')
-      // document.querySelector('.source-set').removeAttribute('style')
-    }
+    // if (curr > 1) {
+    //   const sourceSet = document.querySelector('.source-set')
+    //   const exception = document.querySelector('.exception')
+    //   if (sourceSet) {
+    //     const shadowSource = sourceSet.cloneNode(true)
+    //     shadowSource.setAttribute('style', 'opacity: 0!important;')
+    //     sourceSet.parentNode.appendChild(shadowSource)
+    //     const sourceHight = shadowSource.clientHeight
+    //     const sourceWidth = shadowSource.clientWidth
+    //     const sourcePos = getPosition(shadowSource)
+    //     const sourceTop = `top: ${sourcePos.y}px;`
+    //     sourceSet.parentNode.removeChild(shadowSource)
+
+    //     const sourceSetLastPos = `position: fixed;${sourceTop}${sourceLeft} width: ${sourceWidth}px; height: ${sourceHight}px;`
+    //     const exceptionLastPos = `position: fixed;top: ${sourcePos.y + sourceHight}px;`
+    //     if (sourceSet.sourceSetLastPos !== sourceSetLastPos) {
+    //       sourceSet.setAttribute('style', sourceSetLastPos)
+    //       sourceSet.sourceSetLastPos = sourceSetLastPos
+    //     }
+    //     if (exception.exceptionLastPos !== exceptionLastPos) {
+    //       exception.setAttribute('style', exceptionLastPos)
+    //       exception.exceptionLastPos = exceptionLastPos
+    //     }
+    //     // sourceSet.removeAttribute('style')
+    //     // exception.removeAttribute('style')
+    //     // const sourceHight = sourceSet.clientHeight
+    //     // const sourceWidth = sourceSet.clientWidth
+    //     // const sourcePos = getPosition(sourceSet)
+    //     // const sourceTop = `top: ${sourcePos.y}px;`
+    //     // const sourceLeft = ``
+    //     // sourceSet.setAttribute('style', `position: fixed;${sourceTop}${sourceLeft} width: ${sourceWidth}px; height: ${sourceHight}px;`)
+    //     // exception.setAttribute('style', `position: fixed;top: ${sourcePos.y + sourceHight}px;`)
+    //   } else {
+    //     if (exception.exceptionLastPos !== 'position: fixed;') {
+    //       exception.setAttribute('style', `position: fixed;`)
+    //       exception.exceptionLastPos = 'position: fixed;'
+    //     }
+    //   }
+    // } else {
+    //   const sourceSet = document.querySelector('.source-set')
+    //   const exception = document.querySelector('.exception')
+    //   sourceSet.removeAttribute('style')
+    //   exception.removeAttribute('style')
+    //   sourceSet.sourceSetLastPos = null
+    //   exception.exceptionLastPos = null
+    //   // document.querySelector('.source-set').removeAttribute('style')
+    // }
   }
   setScrollManager () {
     return new Promise((resolve) => {
@@ -625,8 +729,8 @@ class ArticleMobile extends Article{
     ]).then(() => {
       this.d3 = new FertilityD3()
       this.d3.init('#chart-d3-1')
-      this.d35 = new FertilityD3()
-      this.d35.init('#chart-d3-5', '2016')
+      // this.d35 = new FertilityD3()
+      // this.d35.init('#chart-d3-5', '2016')
     })
   }
   preCalc () {
@@ -731,8 +835,8 @@ window.addEventListener('DOMContentLoaded', () => {
     
   }})
   window.addEventListener('layoutDone', () => {
-    window.localStorage.debug = 'FERTILITY:*,FERTILITY:SCROLL,COMM,d3'
-    // window.localStorage.debug = 'COMM'
+    // window.localStorage.debug = 'FERTILITY:*,FERTILITY:SCROLL,COMM,d3'
+    window.localStorage.debug = 'COMM,SETPOS'
     deviceHeight = verge.viewportH()
     deviceWidth =  verge.viewportW()
     /**
@@ -743,14 +847,14 @@ window.addEventListener('DOMContentLoaded', () => {
     debugLayoutDone('viewport', deviceWidth, deviceHeight)
     if (deviceWidth < 1001) {
       debugLayoutDone('render mobile version')
-      fertility = new ArticleMobile()
+      fertility = location.href.indexOf('article') === -1 ? new Fertility() : new ArticleMobile()
     } else {
       debugLayoutDone('abt to init dertility')
       fertility = location.href.indexOf('article') === -1 ? new Fertility() : new Article()
     }
     fertility.init()
     if (location.href.indexOf('article') > -1) {
-      const pymParent = new pym.Parent('mm-projects', 'https://mirrormedia.mg/project-list/dark?excluding=fertilityqa', {})
+      const pymParent = new pym.Parent('mm-projects', 'https://mirrormedia.mg/project-list/dark?excluding=fertility', {})
       // const pymChild = new pym.Child({ renderCallback: () => {
       //   pymChild.sendHeight()
       // }})

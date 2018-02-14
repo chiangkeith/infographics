@@ -58,20 +58,25 @@ export const M141 = {
       type: 'column',
       borderWidth: 0,
       marginTop:20,
-      marginBottom: 40,
+      marginBottom: 80,
       backgroundColor: '#f8f3d6',
   },
   credits: {
       enabled: false
   },
   legend: {
-      enabled: false
+      enabled: true,
+      align: 'right',
+      verticalAlign: 'bottom',
+
+      x: 0,
+      y: 5
   },
   title: {
       text: ''
   },
   xAxis: {
-      categories: ['女性', '育有 2 歲以下兒童 OECD 平均工時', '育有 2 歲以下兒童 歐盟平均工時', '育有 3-5 歲兒童 OECD 平均工時', '育有 3-5 歲兒童 歐盟平均工時']
+      categories: ['台灣有 6 歲以下小孩女性', '育有 2 歲以下兒童 OECD 平均工時', '育有 2 歲以下兒童 歐盟平均工時', '育有 3-5 歲兒童 OECD 平均工時', '育有 3-5 歲兒童 歐盟平均工時']
   },
   yAxis: {
       min: 0,
@@ -106,19 +111,19 @@ export const M141 = {
       }
   },
   series: [{
-      name: '1-29',
+      name: '1-29 小時',
       data: [3.39, 24.52, 20.96, 25.27, 22.31],
       color:'#0083C8'
   }, {
-      name: '30-39',
+      name: '30-39 小時',
       data: [3.95, 26.01, 25.20, 25.95, 25.48],
       color:'#BA8A00'
   }, {
-      name: '40-44',
+      name: '40-44 小時',
       data: [68.15, 38.31, 45.62, 38.43, 44.97],
       color:'#C1272D'
   }, {
-      name: '45小時以上',
+      name: '45 小時以上',
       data: [24.51, 8.77, 5.72, 9.61, 6.50],
       color:'#808080'
   }, {
@@ -192,6 +197,10 @@ export const M131 = {
 }
 export const M14 = {
   chart: {
+      marginTop: 0,
+       marginBottom: 0,
+      marginLeft: 0,
+      marginRight: 0,
       plotBackgroundColor: '#f8f3d6',
       plotBorderWidth: null,
       plotShadow: false,
@@ -352,9 +361,9 @@ export const M14_REAL = {
 }
 export const M15 = {
   chart: {
-      type: 'bar',
+      zoomType: 'xy',
       borderWidth: 0,
-      marginTop:20,
+      marginTop: 20,
       marginBottom: 40,
       backgroundColor: '#f8f3d6',
   },
@@ -370,47 +379,90 @@ export const M15 = {
   subtitle: {
       text: ''
   },
-  xAxis: {
-      categories: ['可以請，但必須自己找<br/>職務代理人', '直接被拒絕', '可以請，但領完津貼之後<br/>就要離職', '可以請，但必須減薪或降職', '其他'],
-      title: {
-          text: null
-      }
-  },
-  yAxis: {
+  xAxis: [{
+      categories: ['一般保母（不含親屬保母）', '私立托嬰中心', '公私協力托嬰中心'],
+      crosshair: true
+  }],
+  yAxis: [{ // Primary yAxis
       min: 0,
       gridLineColor: '#e6e6e6',
       gridLineWidth: 1,
-      title: {
-          text: '',
-          align: 'high'
-      },
       labels: {
-          overflow: 'justify'
-      }
-  },
-  tooltip: {
-      valueSuffix: '%',
-      enabled:false
-  },
-  plotOptions: {
-      bar: {
-          pointPadding: 0.1,
-          borderWidth: 0,
-          dataLabels: {
-              format:'{point.y:.1f}%',
-              enabled: true,
-              color: '#1A1A1A',
-               style:{
-               fontSize: '16px',
-               textOutline: '0px'
-              }
+          format: '{value}',
+          style: {
+              color: '#0083C8'
+          }
+      },
+      title: {
+          text: '數量',
+          style: {
+              color: '#0083C8'
           }
       }
+  }, { // Secondary yAxis
+      max:100,
+      title: {
+          text: '使用率（%）',
+          style: {
+              color: '#BA8A00'
+          }
+      },
+      labels: {
+          format: '{value} ',
+          style: {
+              color: '#BA8A00'
+          }
+      },
+      opposite: true
+  }],
+  exporting: { enabled: false },
+  tooltip: {
+      enabled: false
   },
+  plotOptions: {
+  column: {
+    pointPadding: 0.1,
+    borderWidth: 0,
+    dataLabels:{
+       formatter: function(){
+            var text='';
+           if(this.series.name=='使用率'){
+               text = this.y + '%';
+           }
+           else{
+               text = this.y;
+           }
+           return text;
+       },
+       enabled:true,
+       color: '#1A1A1A',
+       style:{
+       fontSize: '12px',
+       textOutline: '0px'
+       }
+     }
+  }
+},
   series: [{
-      name: '刁難原因',
-      data: [29, 27, 22, 20, 17],
-      color: '#C1272D'
+      name: '使用率',
+      type: 'column',
+      yAxis: 1,
+      data: [48.7, 52.7, 98.6],
+      color: '#BA8A00',
+      tooltip: {
+          valueSuffix: '%',
+          enabled: false
+      }
+
+  }, {
+      name: '數量',
+      type: 'column',
+      data: [24259, 710, 98],
+      color: '#0083C8',
+      tooltip: {
+          valueSuffix: '數量',
+          enabled: false
+      }
   }]
 }
 export const M20 = {
@@ -498,8 +550,8 @@ export const M18 = {
   subtitle: {
       text: ''
   },
-  xAxis: {
-      categories: ['要求員工懷孕須接受<br/>主管進行職務調動', '要求員工懷孕就必須留職停薪', '要求員工懷孕便自動離職', '要求員工懷孕就減薪', '其他'],
+xAxis: {
+      categories: ['韓國', '丹麥', '瑞典','法國','德國','奧地利','比利時','冰島','英國','西班牙','OCED 平均','澳洲','芬蘭','台灣','紐西蘭','日本','以色列','加拿大'],
       title: {
           text: null
       }
@@ -518,26 +570,27 @@ export const M18 = {
   },
   tooltip: {
       valueSuffix: '%',
-      enabled: false
+      enabled: true
   },
-  plotOptions: {
+exporting: { enabled: false },
+plotOptions: {
       bar: {
           pointPadding: 0.1,
           borderWidth: 0,
           dataLabels: {
-              format:'{point.y:.1f}%',
-              enabled: true,
+              enabled:true,
+              format:'{point.y:.1f} %',
               color: '#1A1A1A',
-              style:{
-              fontSize: '16px',
-              textOutline: '0px'
+               style:{
+               fontSize: '10px',
+               textOutline: '0px'
               }
           }
       }
   },
   series: [{
-      name: '刁難原因',
-      data: [49, 19, 15, 3, 31],
+      name: '托育負擔佔可支配所得比',
+      data: [0,2.9,4.2,4.4,5.2,5.6,5.9,6.9,7.9,12.1,13.5,14.1,17.1,18.03,20.5,22.3,22.4,32.3],
       color: '#C1272D'
   }]
 }
@@ -626,7 +679,7 @@ export const M22 = {
       enabled: false
   },
   legend: {
-      enabled: true,
+      enabled: false,
       align: 'right',
       verticalAlign: 'bottom',
 
@@ -637,7 +690,7 @@ export const M22 = {
       text: ''
   },
   xAxis: {
-      categories: ['台灣有 6 歲以下小孩女性', '育有 2 歲以下兒童 OECD 平均工時', '育有 2 歲以下兒童 歐盟平均工時', '育有 3-5 歲兒童 OECD 平均工時', '育有 3-5 歲兒童 歐盟平均工時']
+      categories: ['台灣育有6歲 以下兒童', 'OECD育有2歲 以下兒童女性', '歐盟育有2歲 以下兒童', 'OECD育有3歲 以上兒童', '歐盟育有3歲 以上兒童']
   },
   yAxis: {
       min: 0,
@@ -758,6 +811,10 @@ export const M25 = {
 }
 export const M28 = {
   chart: {
+      marginTop: 0,
+       marginBottom: 0,
+      marginLeft: 0,
+      marginRight: 0,
       plotBackgroundColor: '#f8f3d6',
       plotBorderWidth: null,
       plotShadow: false,
@@ -1147,8 +1204,8 @@ export const M18_REAL = {
   subtitle: {
       text: ''
   },
-  xAxis: {
-      categories: ['韓國', '丹麥', '盧森堡', '葡萄牙', '瑞典','法國','德國','奧地利','比利時','希臘','冰島','匈牙利','英國','愛沙尼亞','瑞士','挪威','波蘭','西班牙','荷蘭','OCED 平均','澳洲','斯洛維尼亞','芬蘭','台灣','紐西蘭','日本','以色列','捷克','斯洛伐克','加拿大','愛爾蘭','美國'],
+xAxis: {
+      categories: ['韓國', '丹麥', '瑞典','法國','德國','奧地利','比利時','冰島','英國','西班牙','OCED 平均','澳洲','芬蘭','台灣','紐西蘭','日本','以色列','加拿大'],
       title: {
           text: null
       }
@@ -1167,9 +1224,10 @@ export const M18_REAL = {
   },
   tooltip: {
       valueSuffix: '%',
-      enabled: false
+      enabled: true
   },
-  plotOptions: {
+exporting: { enabled: false },
+plotOptions: {
       bar: {
           pointPadding: 0.1,
           borderWidth: 0,
@@ -1185,8 +1243,8 @@ export const M18_REAL = {
       }
   },
   series: [{
-      name: '百分比',
-      data: [0,2.9,3.2,3.8,4.2,4.4,5.2,5.6,5.9,6.1,6.9,7.7,7.9,10.2,10.6,11.1,11.4,12.1,12.9,13.5,14.1,16.1,17.1,18.03,20.5,22.3,22.4,23,24.4,32.3,41.6,52.7],
+      name: '托育負擔佔可支配所得比',
+      data: [0,2.9,4.2,4.4,5.2,5.6,5.9,6.9,7.9,12.1,13.5,14.1,17.1,18.03,20.5,22.3,22.4,32.3],
       color: '#C1272D'
   }]
 }
@@ -1420,4 +1478,72 @@ export const M01_REAL = {
       data: [325545, 326002, 271450, 283661, 305312, 260354, 247530, 227070, 216419, 205854, 204459, 204414, 198733,191310,166886,196627,229481,199113,210383,213598,208440],
       color: '#C1272D'
   }]
+}
+export const M816122 = {
+  chart: {
+      type: 'bar',
+      borderWidth: 0,
+      marginTop:20,
+      marginBottom: 50,
+      backgroundColor: '#f8f3d6',
+  },
+  credits: {
+      enabled: false
+  },
+  legend: {
+      enabled: true,
+      align: 'right',
+      verticalAlign: 'bottom',
+
+      x: 0,
+      y: 10
+  },
+  title: {
+      text: ''
+  },
+  xAxis: {
+      categories: ['連江縣', '台東縣', '澎湖縣', '金門縣', '花蓮縣','嘉義縣','宜蘭縣','南投縣','屏東縣','雲林縣','基隆市','苗栗縣','台南市','彰化縣','新竹縣','桃園市','高雄市','台中市','新北市','台北市','嘉義市','新竹市']
+  },
+  yAxis: {
+      min: 0,
+      gridLineColor: '#e6e6e6',
+      gridLineWidth: 1,
+      title: {
+          text: ''
+      }
+  },
+  tooltip: {
+  //borderColor: null
+      pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+      shared: false,
+      backgroundColor: '#ffffff',
+      borderWidth: 0,
+      enabled:true
+  },
+  
+  plotOptions: {
+      bar: {
+          stacking: 'percent',
+          pointPadding: 0.2,
+          borderWidth: 0,
+          dataLabels:{
+             format:'{point.y:f}%',
+             enabled:false,
+             color: '#1A1A1A',
+             style:{
+                fontSize: '10px',
+                textOutline: '0px'
+                }
+             }
+      }
+  },
+  series: [ {
+      name: '公立',
+      data: [100,82,81,81,69,64,62,60,52,45,44,41,38,35,34,33,33,32,27,24,23,20],
+      color:'#C1272D'
+  }, {
+      name: '私立',
+      data: [0,18,19,19,31,36,38,40,48,55,56,59,62,65,66,67,67,68,73,76,77,80],
+      color:'#808080'
+  }, ]
 }

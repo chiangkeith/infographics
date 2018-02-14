@@ -36,7 +36,7 @@ const autoprefixer = require('autoprefixer');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 let pathsToClean = [
-  'fertilityqa'
+  'fertility'
 ];
 
 let cleanOptions = {}
@@ -46,7 +46,7 @@ module.exports = {
         app: './src/index.js',
     },
     output: {
-        path: `${__dirname}/fertilityqa`,
+        path: `${__dirname}/fertility`,
         filename: '[name].[hash].js',
     },
     module: {
@@ -104,14 +104,14 @@ module.exports = {
     plugins: [
         HTMLWebpackPluginConfig,
         HTMLWebpackPluginConfigArticle,
-        // new webpack.optimize.UglifyJsPlugin({
-        //   uglifyOptions : {
-        //     compress: {
-        //         warnings: true,
-        //     },
-        //     mangle: false,
-        //   }
-        // }),
+        new webpack.optimize.UglifyJsPlugin({
+          uglifyOptions : {
+            compress: {
+                warnings: true,
+            },
+            mangle: false,
+          }
+        }),
         new ExtractTextPlugin({
           filename: '[name]-[chunkhash].css',
         }),

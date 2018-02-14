@@ -4,6 +4,11 @@
   // z-index 2
 body
   background-color #f8f3d6
+  > .outerwpr
+    article
+      .section 
+        img
+          width 100%
 .ratiowpr
   box-sizing border-box
   padding-bottom 0
@@ -101,6 +106,26 @@ li.invalid
           left 98px
         &.g-plus
           left 149px
+.creadit
+  color #7d7d7d
+.source-set
+  // position fixed
+  &.hint
+    &::after
+      content ''
+      text-align left
+      display block
+      background-position 0 0
+      background-size contain
+      background-repeat no-repeat
+      height 15px
+      margin-top 10px
+    &.d3
+      &::after
+        background-image url(../images/T@2x.png)
+    &.m22
+      &::after
+        background-image url(../images/M22@2x.png)
 .articlewpr
   background-color transparent
   &:first-child
@@ -241,18 +266,28 @@ li.invalid
 .marker--btn
   cursor pointer
 #mm-projects
-    width 755px
-    margin 0 auto 40px
-    //background-color #fff
-    padding 40px 0 20px
-    iframe
-      height 331px
+  width 755px
+  margin 0 auto 40px
+  //background-color #fff
+  padding 40px 0 20px
+  iframe
+    height 331px
 .facebook-comment
-    padding 20px
-    background-color #fff
-    width 60%
-    max-width 755px
-    margin 0 auto 40px
+  padding 20px
+  background-color #fff
+  width 60%
+  max-width 755px
+  margin 0 auto 40px
+.intro-container
+  margin 0 auto
+  p
+    max-width 800px
+    margin-left auto
+    margin-right auto
+.choices
+  li     
+    a, a:hover, a:link, a:visited
+      color white
 @media screen and (min-width: 0px) and (max-width: 767px)
   #mm-projects
       width 300px
@@ -277,6 +312,13 @@ li.invalid
       &.empty
         min-height 50vh
 @media (max-width 1000px)
+  section.mobile-margin-0
+    margin 0 auto!important
+    .chart-container
+      margin 0 auto 20px !important
+    .web   
+      display none !important
+
   .web
     display none !important
   .articlewpr
@@ -327,6 +369,15 @@ li.invalid
   .articlewpr
     padding 60px 60px
 @media (max-width 700px)
+  body
+    > .outerwpr
+      article
+      .section 
+          img
+            &.phone-only
+              display inherit
+            &.web-only
+              display none
   .articlewpr
     section
       .chart-container
@@ -351,6 +402,8 @@ li.invalid
                 &.t1w
                   background-image url(../images/DF_T1_p.png)
 @media (max-width 600px)
+  .web-600
+    display none !important
   .articlewpr
     padding 62px 30px 30px 30px
     section
@@ -367,7 +420,7 @@ li.invalid
       .chart-container
         .ratiowpr
           &__chart
-            _width = 350px
+            _width = 320px
             &__img__container
               width _width
               height _width * (740 / 828)
@@ -381,6 +434,18 @@ li.invalid
             &__img__container
               width _width
               height _width * (740 / 828)
+@media (min-width 601px)
+  .phone-600
+    display none !important
+@media (min-width 701px)
+  body
+    > .outerwpr
+      article
+        .section 
+          img
+            &.phone-only
+              display none
+
 @media (min-width 900px)
   .articlewpr
     section
@@ -393,6 +458,8 @@ li.invalid
                   width _width
                   height _width * (945 / 1601)
 @media (min-width 1000px)
+  .phone-only
+    display none
   .articlewpr
     section
       .chart-container

@@ -109,7 +109,7 @@ export class FertilityD3 {
   updateScales () {
     this.xScale = d3.scale.linear()
     .domain([this.bounds[this.xAxis].min, this.bounds[this.xAxis].max])
-    .range([0, this.svgWidth > 500 ? this.svgWidth - 320 : this.svgWidth - 40 ])
+    .range([0, this.svgWidth > 500 ? this.svgWidth > 1200 ? this.svgWidth - 600 : this.svgWidth - 400 : this.svgWidth - 40 ])
 
     this.yScale = d3.scale.linear()
     .domain([this.bounds[this.yAxis].min, this.bounds[this.yAxis].max])

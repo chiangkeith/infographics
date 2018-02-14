@@ -77,6 +77,10 @@ export function renderChart (ele, targKey) {
     case '816251':
       configKey = 'M15'
       break
+    case '16122':
+    case '816122':
+      configKey = 'M816122'
+      break
     case '131':
     case '8131':
       configKey = 'M131'
